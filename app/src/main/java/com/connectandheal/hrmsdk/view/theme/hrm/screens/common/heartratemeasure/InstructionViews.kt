@@ -1,8 +1,10 @@
 package com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.connectandheal.hrmsdk.R
 import com.soscare.customer.view.common.theme.Grey200
 import com.soscare.customer.view.common.theme.PrimaryWhite
@@ -28,7 +31,8 @@ fun BottomInstructions() {
         shape = RoundedCornerShape(
             topEnd = 8.dp,
             topStart = 8.dp
-        )
+        ),
+
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 45.dp),
@@ -43,7 +47,7 @@ fun BottomInstructions() {
                 painter = painterResource(id = R.drawable.ic_hrm_instructions),
                 contentDescription = "instructions",
                 modifier = Modifier
-                    .padding(top = 33.dp)
+                    .padding(top = 23.dp)
                     .size(
                         width = 139.dp,
                         height = 173.dp
@@ -57,20 +61,23 @@ fun BottomInstructions() {
 fun TopInstructions() {
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Column(modifier = Modifier.padding(horizontal = 75.dp)) {
+        Column(
+            modifier = Modifier.padding(horizontal = 75.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Text(
                 text = "Scanning....",
-                modifier = Modifier.padding(top = 29.dp),
+                modifier = Modifier.padding(top = 22.dp),
                 style = TextStyle_Size18_Weight700,
                 color = Color.Black
             )
             Text(
                 text = "Place your finger gently on the back camera and hold it there",
-                modifier = Modifier.padding(top = 29.dp),
-                style = TextStyle_Size18_Weight700,
-                color = Color.Black
+                modifier = Modifier.padding(top = 12.dp),
+                style = TextStyle_Size14_Weight400.copy(lineHeight = 22.sp),
+                color = Grey200
             )
         }
     }
@@ -78,8 +85,16 @@ fun TopInstructions() {
 
 @Composable
 fun VoiceInstructions() {
-    Row {
-        Row {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 138.dp, bottom = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = "Voice Instructions",
                 style = TextStyle_Size14_Weight400,
@@ -96,7 +111,11 @@ fun VoiceInstructions() {
                     )
             )
         }
-        Row {
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_how_it_works),
                 contentDescription = "How it works",

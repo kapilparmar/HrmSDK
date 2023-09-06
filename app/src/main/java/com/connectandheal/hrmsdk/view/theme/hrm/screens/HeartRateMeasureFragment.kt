@@ -14,11 +14,13 @@ import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +30,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -42,6 +46,7 @@ import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.SelectPatientBar
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.BottomInstructions
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.TopInstructions
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.VoiceInstructions
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.toBitmap
 import com.connectandheal.hrmsdk.viewmodel.hrm.HRMViewState
 import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateMeasureViewModel
@@ -190,30 +195,48 @@ fun MeasureHeartRateScreen(
     viewModel: HeartRateMeasureViewModel,
     cameraController: LifecycleCameraController?
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = TertiaryPastelWhite),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        SelectPatientBar(onChangeClick = { })
-        TopInstructions()
-        AndroidView(
+    Column {
+        Column(
             modifier = Modifier
-                .size(142.dp),
-            factory = { context ->
-                val previewView = PreviewView(context).apply {
-                    this.scaleType = scaleType
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
+                .weight(1f)
+                .fillMaxSize()
+                .background(color = TertiaryPastelWhite),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            SelectPatientBar(onChangeClick = { })
+            TopInstructions()
+            Box(
+                modifier = Modifier
+                    .padding(top = 20.dp)
+                    .size(142.dp)
+                    .background(color = Color.White, shape = CircleShape)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(112.dp)
+                        .align(Alignment.Center)
+                ) {
+                    AndroidView(
+                        modifier = Modifier,
+                        factory = { context ->
+                            val previewView = PreviewView(context).apply {
+                                this.scaleType = scaleType
+                                layoutParams = ViewGroup.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.MATCH_PARENT
+                                )
+                            }.also {
+                                it.controller = cameraController
+                            }
+                            previewView
+                        }
                     )
-                }.also {
-                    it.controller = cameraController
                 }
-                previewView
             }
-        )
+            VoiceInstructions()
+        }
         BottomInstructions()
+
     }
 }
