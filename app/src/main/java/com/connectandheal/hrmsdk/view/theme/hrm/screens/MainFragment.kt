@@ -34,7 +34,7 @@ import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.Router
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.HandleMultiplePermissions
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.SettingsAlertDialogPermission
-import com.soscare.customer.view.common.theme.AppTheme
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.AppTheme
 import com.soscare.customer.view.common.theme.PrimarySolidGreen
 import com.soscare.customer.view.common.theme.PrimaryWhite
 import com.soscare.customer.view.common.theme.TextStyle_Size18_Weight700

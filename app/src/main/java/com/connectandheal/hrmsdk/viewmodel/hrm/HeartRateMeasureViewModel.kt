@@ -3,19 +3,24 @@ package com.connectandheal.hrmsdk.viewmodel.hrm
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.connectandheal.hrmsdk.domain.ScanHeartRateModel
+import com.connectandheal.hrmsdk.domain.ScanStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Arrays
+import javax.inject.Inject
 
 sealed class HRMViewState {
-    object MeasureHeartRate : HRMViewState()
-    object ResultAvailable: HRMViewState()
-    object Error: HRMViewState()
+    object Initial : HRMViewState()
+    data class Scanning(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
+    data class MeasureHeartRate(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
+    data class ResultAvailable(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
+    data class Error(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
+    data class MotionDetected(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
 }
 
 @HiltViewModel
@@ -28,7 +33,8 @@ class HeartRateMeasureViewModel @Inject constructor(
     private var mLastLastRollingAverage: Int = 0
     private val mTimeArray = LongArray(15)
 
-    private val _hrmViewState: MutableStateFlow<HRMViewState> = MutableStateFlow(HRMViewState.MeasureHeartRate)
+    private val _hrmViewState: MutableStateFlow<HRMViewState> =
+        MutableStateFlow(HRMViewState.Initial)
     val hrmViewState by lazy {
         _hrmViewState.asStateFlow()
     }
@@ -54,9 +60,17 @@ class HeartRateMeasureViewModel @Inject constructor(
     }
 
     init {
+        _hrmViewState.value = HRMViewState.Scanning(
+            ScanHeartRateModel(
+                title = "Scanning....",
+                description = "Place your finger gently on the back camera and hold it there",
+                bottomInstruction = "Place your finger on the camera to measure the heart rate",
+                scanStatus = ScanStatus.SCANNING
+            )
+        )
         viewModelScope.launch {
             mNumBeats.collectLatest {
-                    _percentageProgress.value = it / 15
+                _percentageProgress.value = it / 15
             }
         }
     }
@@ -113,6 +127,6 @@ class HeartRateMeasureViewModel @Inject constructor(
         Arrays.sort(timedist)
         med = timedist[timedist.size / 2].toInt()
         _heartRateInBpm.value = 60000 / med
-        _hrmViewState.value = HRMViewState.ResultAvailable
+//        _hrmViewState.value = HRMViewState.ResultAvailable
     }
 }

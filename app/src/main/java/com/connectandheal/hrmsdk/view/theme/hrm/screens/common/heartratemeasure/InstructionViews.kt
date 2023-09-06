@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.connectandheal.hrmsdk.R
@@ -25,23 +26,25 @@ import com.soscare.customer.view.common.theme.TextStyle_Size16_Weight400
 import com.soscare.customer.view.common.theme.TextStyle_Size18_Weight700
 
 @Composable
-fun BottomInstructions() {
+fun BottomInstructions(
+    instruction : String
+) {
     Surface(
-        color = PrimaryWhite,
         shape = RoundedCornerShape(
             topEnd = 8.dp,
             topStart = 8.dp
         ),
-
+        color = PrimaryWhite,
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 45.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Place your finger on the camera to measure the heart rate",
+                text = instruction,
                 modifier = Modifier.padding(top = 29.dp),
-                style = TextStyle_Size16_Weight400
+                style = TextStyle_Size16_Weight400,
+                textAlign = TextAlign.Center
             )
             Image(
                 painter = painterResource(id = R.drawable.ic_hrm_instructions),
@@ -58,7 +61,10 @@ fun BottomInstructions() {
 }
 
 @Composable
-fun TopInstructions() {
+fun TopInstructions(
+    title : String,
+    description : String
+) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -68,16 +74,17 @@ fun TopInstructions() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Scanning....",
+                text = title,
                 modifier = Modifier.padding(top = 22.dp),
                 style = TextStyle_Size18_Weight700,
                 color = Color.Black
             )
             Text(
-                text = "Place your finger gently on the back camera and hold it there",
+                text = description,
                 modifier = Modifier.padding(top = 12.dp),
                 style = TextStyle_Size14_Weight400.copy(lineHeight = 22.sp),
-                color = Grey200
+                color = Grey200,
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -88,7 +95,10 @@ fun VoiceInstructions() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 138.dp, bottom = 14.dp),
+            .padding(
+                start = 16.dp, end = 16.dp,
+                top = 138.dp, bottom = 14.dp
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(

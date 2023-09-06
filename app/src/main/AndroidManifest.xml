@@ -13,7 +13,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.HrmSDK"
+        android:theme="@style/Theme.CNHCare"
         tools:targetApi="33">
         <activity
             android:name=".MainActivity"
@@ -30,7 +30,7 @@
             android:exported="false"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.HrmSDK">
+            android:theme="@style/Theme.CNHCare">
         </activity>
 
     </application>
