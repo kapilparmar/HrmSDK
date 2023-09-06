@@ -1,12 +1,6 @@
 package com.connectandheal.hrmsdk.view.theme.hrm.screens
 
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
-import android.graphics.Rect
-import android.graphics.YuvImage
-import android.media.Image
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,12 +12,13 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -36,26 +31,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.connectandheal.hrmsdk.R
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.Destination
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.SelectPatientBar
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.BottomInstructions
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.TopInstructions
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.toBitmap
 import com.connectandheal.hrmsdk.viewmodel.hrm.HRMViewState
 import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateMeasureViewModel
 import com.soscare.customer.view.common.theme.AppTheme
+import com.soscare.customer.view.common.theme.TertiaryPastelWhite
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.parcelize.Parcelize
-import java.io.ByteArrayOutputStream
 
 @Parcelize
 data class HeartRateMeasureScreen(
     override val destination: Destination.Fragment = Destination.Fragment(R.id.heartRateMeasureScreen)
-): FragmentRouteProtocol
+) : FragmentRouteProtocol
 
 @AndroidEntryPoint
 class HeartRateMeasureFragment : Fragment() {
@@ -79,7 +77,8 @@ class HeartRateMeasureFragment : Fragment() {
             setContent {
                 AppTheme {
                     MainContent(
-                        viewModel
+                        viewModel = viewModel,
+                        cameraController = cameraController
                     )
                 }
             }
@@ -88,154 +87,133 @@ class HeartRateMeasureFragment : Fragment() {
 
     @Composable
     fun MainContent(
-        viewModel: HeartRateMeasureViewModel
+        viewModel: HeartRateMeasureViewModel,
+        cameraController: LifecycleCameraController?
     ) {
         Scaffold(
             content = { paddingValues ->
                 HeartRateMeasureContent(
                     paddingValues = paddingValues,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    cameraController = cameraController
                 )
             }
         )
     }
+}
 
-    @OptIn(ExperimentalGetImage::class)
-    @Composable
-    fun HeartRateMeasureContent(
-        paddingValues: PaddingValues,
-        viewModel: HeartRateMeasureViewModel
-    ) {
-        val lifecycleOwner = LocalLifecycleOwner.current
-        val context = LocalContext.current
-        val executor = ContextCompat.getMainExecutor(context)
-        val viewState = viewModel.hrmViewState.collectAsState()
-        val coroutineScope = rememberCoroutineScope()
+@OptIn(ExperimentalGetImage::class)
+@Composable
+fun HeartRateMeasureContent(
+    paddingValues: PaddingValues,
+    viewModel: HeartRateMeasureViewModel,
+    cameraController: LifecycleCameraController?
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
+    val executor = ContextCompat.getMainExecutor(context)
+    val viewState = viewModel.hrmViewState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
-        val imageAnalysis = ImageAnalysis.Analyzer { frame: ImageProxy ->
-            frame.image?.toBitmap()?.let {
-                viewModel.processBitmap(it)
-            }
-            frame.close()
+    val imageAnalysis = ImageAnalysis.Analyzer { frame: ImageProxy ->
+        frame.image?.toBitmap()?.let {
+            viewModel.processBitmap(it)
         }
+        frame.close()
+    }
 
-        LaunchedEffect(key1 = viewState.value) {
-            when (viewState.value) {
-                is HRMViewState.MeasureHeartRate -> {
-                    cameraController?.bindToLifecycle(lifecycleOwner)
-                    cameraController?.cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-                    cameraController?.enableTorch(true)
-                    cameraController?.imageAnalysisBackpressureStrategy = ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
-                    cameraController?.setImageAnalysisAnalyzer(
-                        executor,
-                        imageAnalysis
-                    )
-                }
-                is HRMViewState.ResultAvailable -> {
-                    cameraController?.clearImageAnalysisAnalyzer()
-                    cameraController?.unbind()
-                }
-                is HRMViewState.Error -> {}
+    LaunchedEffect(key1 = viewState.value) {
+        when (viewState.value) {
+            is HRMViewState.MeasureHeartRate -> {
+                cameraController?.bindToLifecycle(lifecycleOwner)
+                cameraController?.cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                cameraController?.enableTorch(true)
+                cameraController?.imageAnalysisBackpressureStrategy =
+                    ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
+                cameraController?.setImageAnalysisAnalyzer(
+                    executor,
+                    imageAnalysis
+                )
             }
-        }
 
-        Column(modifier = Modifier
+            is HRMViewState.ResultAvailable -> {
+                cameraController?.clearImageAnalysisAnalyzer()
+                cameraController?.unbind()
+            }
+
+            is HRMViewState.Error -> {}
+        }
+    }
+
+    Column(
+        modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
-        ) {
-            when (viewState.value) {
-                is HRMViewState.MeasureHeartRate -> {
-                    MeasureHeartRateScreen(viewModel)
-                }
-                is HRMViewState.ResultAvailable -> {
-                    HRMResultScreen(
-                        viewModel.heartRateInBpm.collectAsState()
-                    )
-                }
-                is HRMViewState.Error -> {}
+    ) {
+        when (viewState.value) {
+            is HRMViewState.MeasureHeartRate -> {
+                MeasureHeartRateScreen(
+                    viewModel = viewModel,
+                    cameraController = cameraController
+                )
             }
+
+            is HRMViewState.ResultAvailable -> {
+                HRMResultScreen(
+                    viewModel.heartRateInBpm.collectAsState(),
+                    cameraController = cameraController
+                )
+            }
+
+            is HRMViewState.Error -> {}
         }
     }
+}
 
-    @Composable
-    fun HRMResultScreen(
-        heartRateInBpm: State<Int>
+@Composable
+fun HRMResultScreen(
+    heartRateInBpm: State<Int>,
+    cameraController: LifecycleCameraController?
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "${heartRateInBpm.value}")
-        }
+        Text(text = "${heartRateInBpm.value}")
     }
+}
 
-    @OptIn(ExperimentalGetImage::class)
-    @Composable
-    fun MeasureHeartRateScreen(
-        viewModel: HeartRateMeasureViewModel
+@OptIn(ExperimentalGetImage::class)
+@Composable
+fun MeasureHeartRateScreen(
+    viewModel: HeartRateMeasureViewModel,
+    cameraController: LifecycleCameraController?
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = TertiaryPastelWhite),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                factory = { context ->
-                    val previewView = PreviewView(context).apply {
-                        this.scaleType = scaleType
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                    }.also {
-                        it.controller = cameraController
-                    }
-                    previewView
+        SelectPatientBar(onChangeClick = { })
+        TopInstructions()
+        AndroidView(
+            modifier = Modifier
+                .size(142.dp),
+            factory = { context ->
+                val previewView = PreviewView(context).apply {
+                    this.scaleType = scaleType
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                }.also {
+                    it.controller = cameraController
                 }
-            )
-            ProgressView(
-                viewModel = viewModel,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
-        }
-    }
-
-    @kotlin.OptIn(ExperimentalLifecycleComposeApi::class)
-    @Composable
-    fun ProgressView(
-        viewModel: HeartRateMeasureViewModel,
-        modifier: Modifier
-    ) {
-        val percentage = viewModel.percentageProgress.collectAsStateWithLifecycle()
-
-        Column(modifier = modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(text = "Calculating...")
-        }
-    }
-
-    //convert YUV_420_888 Image to bitmap ARGB_8888
-    fun Image.toBitmap(): Bitmap {
-
-        val yBuffer = planes[0].buffer // Y
-        val vuBuffer = planes[2].buffer // VU
-
-        val ySize = yBuffer.remaining()
-        val vuSize = vuBuffer.remaining()
-
-        val nv21 = ByteArray(ySize + vuSize)
-
-        yBuffer.get(nv21, 0, ySize)
-        vuBuffer.get(nv21, ySize, vuSize)
-
-        val yuvImage = YuvImage(nv21, ImageFormat.NV21, this.width, this.height, null)
-        val out = ByteArrayOutputStream()
-        yuvImage.compressToJpeg(Rect(0, 0, yuvImage.width, yuvImage.height), 100, out)
-        val imageBytes = out.toByteArray()
-        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                previewView
+            }
+        )
+        BottomInstructions()
     }
 }

@@ -63,6 +63,7 @@ val BadgeOrange = Color(0xffFFA439)
 val BadgeRed = Color(0xffF51C1C)
 val BadgeSolidGreen = Color(0xff17B064)
 val BadgeCharcoalGray = Color(0xff374151)
+val SeaSalt = Color (0xffF7F7F7)
 
 val ButtonSolidGreen = Color(0xff17B064)
 val ButtonSolidBlue = Color(0xff1F2584)
