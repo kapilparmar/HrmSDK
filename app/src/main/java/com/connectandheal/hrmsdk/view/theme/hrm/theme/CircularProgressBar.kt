@@ -55,7 +55,8 @@ fun CircularProgressBar(
         contentAlignment = Alignment.Center,
         modifier = modifier
     ) {
-        Canvas(modifier = modifier.fillMaxSize().background(color = Red, shape = CircleShape)) {
+        Canvas(modifier = modifier.fillMaxSize().background(color = Color.Red.copy(alpha = 0.47f),
+            shape = CircleShape)) {
             val canvasSize = size.minDimension
             val radius =
                 canvasSize / 2 - maxOf(backgroundProgressBarWidth, progressBarWidth).toPx() / 2
