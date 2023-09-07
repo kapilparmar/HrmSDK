@@ -127,6 +127,15 @@ class HeartRateMeasureViewModel @Inject constructor(
         Arrays.sort(timedist)
         med = timedist[timedist.size / 2].toInt()
         _heartRateInBpm.value = 60000 / med
+        _hrmViewState.value = HRMViewState.MeasureHeartRate(
+            ScanHeartRateModel(
+                title = "Measuring...",
+                description = "Keep calm and take deep breaths",
+                bottomInstruction = "Keep your hands warm. Blood flow in your fingers decreases " +
+                        "when your hands are cold causing a weak signal.",
+                scanStatus = ScanStatus.MEASURING
+            )
+        )
 //        _hrmViewState.value = HRMViewState.ResultAvailable
     }
 }

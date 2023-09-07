@@ -1,4 +1,4 @@
-package com.soscare.customer.view.common.theme
+package com.connectandheal.hrmsdk.view.theme.hrm.theme
 
 import androidx.compose.ui.graphics.Color
 

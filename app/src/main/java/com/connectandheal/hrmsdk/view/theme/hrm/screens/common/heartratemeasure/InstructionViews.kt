@@ -12,27 +12,31 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.connectandheal.hrmsdk.R
-import com.soscare.customer.view.common.theme.Grey200
-import com.soscare.customer.view.common.theme.PrimaryWhite
-import com.soscare.customer.view.common.theme.TextStyle_Size14_Weight400
-import com.soscare.customer.view.common.theme.TextStyle_Size16_Weight400
-import com.soscare.customer.view.common.theme.TextStyle_Size18_Weight700
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.CircularProgressBar
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey200
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidGreen
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimaryWhite
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight400
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size18_Weight700
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size34_Weight700
 
 @Composable
 fun BottomInstructions(
-    instruction : String
+    instruction: String
 ) {
     Surface(
         shape = RoundedCornerShape(
-            topEnd = 8.dp,
-            topStart = 8.dp
+            topEnd = 8.dp, topStart = 8.dp
         ),
         color = PrimaryWhite,
     ) {
@@ -52,8 +56,7 @@ fun BottomInstructions(
                 modifier = Modifier
                     .padding(top = 23.dp)
                     .size(
-                        width = 139.dp,
-                        height = 173.dp
+                        width = 139.dp, height = 173.dp
                     )
             )
         }
@@ -62,8 +65,7 @@ fun BottomInstructions(
 
 @Composable
 fun TopInstructions(
-    title : String,
-    description : String
+    title: String, description: String
 ) {
 
     Column(
@@ -96,19 +98,14 @@ fun VoiceInstructions() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = 16.dp, end = 16.dp,
-                top = 138.dp, bottom = 14.dp
-            ),
-        verticalAlignment = Alignment.CenterVertically
+                start = 16.dp, end = 16.dp, top = 138.dp, bottom = 14.dp
+            ), verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = Modifier.weight(1f),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Voice Instructions",
-                style = TextStyle_Size14_Weight400,
-                color = Grey200
+                text = "Voice Instructions", style = TextStyle_Size14_Weight400, color = Grey200
             )
             Image(
                 painter = painterResource(id = R.drawable.ic_voice_instruction),
@@ -116,8 +113,7 @@ fun VoiceInstructions() {
                 modifier = Modifier
                     .padding(start = 6.dp)
                     .size(
-                        width = 18.dp,
-                        height = 20.dp
+                        width = 18.dp, height = 20.dp
                     )
             )
         }
@@ -134,10 +130,53 @@ fun VoiceInstructions() {
                     .size(16.dp)
             )
             Text(
-                text = "How it works",
-                style = TextStyle_Size14_Weight400,
-                color = Grey200
+                text = "How it works", style = TextStyle_Size14_Weight400, color = Grey200
             )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun HeartRateMeasuring() {
+    Surface(
+        modifier = Modifier.size(width = 170.dp, height = 250.dp),
+        shape = RoundedCornerShape(
+            topEnd = 85.dp, topStart = 85.dp, bottomEnd = 85.dp, bottomStart = 85.dp
+        ),
+        color = PrimaryWhite,
+    ) {
+        Column(horizontalAlignment = CenterHorizontally, modifier = Modifier.padding(top = 22.dp)) {
+            CircularProgressBar(
+                progress = 80f,
+                modifier = Modifier
+                    .size(128.dp),
+                progressMax = 100f,
+                progressBarColor = PrimarySolidGreen,
+                progressBarWidth = 8.dp,
+                backgroundProgressBarColor = Color.White,
+                backgroundProgressBarWidth = 8.dp,
+                roundBorder = true,
+                labelEnabled = true
+            )
+
+            Row(
+                modifier = Modifier.padding(top = 20.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_heart),
+                    contentDescription = "instructions",
+                    modifier = Modifier
+                        .padding(start = 6.dp)
+                        .size(43.dp)
+                )
+                Text(
+                    text = "22",
+                    style = TextStyle_Size34_Weight700, color = Grey200
+                )
+            }
         }
     }
 }

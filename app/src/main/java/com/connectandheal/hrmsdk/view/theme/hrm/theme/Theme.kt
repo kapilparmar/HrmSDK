@@ -13,6 +13,11 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.Purple200
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.Purple500
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.Purple700
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.Teal200
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.Typography
 
 private val DarkColorPalette = darkColorScheme(
     primary = Purple200,

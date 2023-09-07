@@ -1,4 +1,4 @@
-package com.soscare.customer.view.common.theme
+package com.connectandheal.hrmsdk.view.theme.hrm.theme
 
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
@@ -479,6 +479,12 @@ val TextStyle_Size19_Weight700: TextStyle
 val TextStyle_Size34_Weight700: TextStyle
     get() = TextStyle(
         fontWeight = FontWeight.W700,
-        fontSize = 44.sp,
+        fontSize = 34.sp,
+        fontFamily = defaultFontFamily
+    )
+val TextStyle_Size36_Weight700: TextStyle
+    get() = TextStyle(
+        fontWeight = FontWeight.W700,
+        fontSize = 36.sp,
         fontFamily = defaultFontFamily
     )

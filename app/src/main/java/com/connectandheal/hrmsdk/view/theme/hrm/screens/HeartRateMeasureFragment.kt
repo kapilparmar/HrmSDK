@@ -53,19 +53,20 @@ import com.connectandheal.hrmsdk.domain.ScanStatus
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.Destination
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.BottomInstructions
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.HeartRateMeasuring
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.TopInstructions
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.VoiceInstructions
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.toBitmap
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.AppTheme
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.DefaultAppBar
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey500
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidBlue
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.SelectPatientBar
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TertiaryPastelWhite
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight400
 import com.connectandheal.hrmsdk.viewmodel.hrm.HRMViewState
 import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateMeasureViewModel
-import com.soscare.customer.view.common.theme.Grey500
-import com.soscare.customer.view.common.theme.PrimarySolidBlue
-import com.soscare.customer.view.common.theme.TertiaryPastelWhite
-import com.soscare.customer.view.common.theme.TextStyle_Size14_Weight400
-import com.soscare.customer.view.common.theme.TextStyle_Size16_Weight400
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.parcelize.Parcelize
 
@@ -169,7 +170,7 @@ fun HeartRateMeasureContent(
 
     LaunchedEffect(key1 = viewState) {
         when (viewState) {
-            is HRMViewState.MeasureHeartRate -> {
+            is HRMViewState.Scanning -> {
                 cameraController?.bindToLifecycle(lifecycleOwner)
                 cameraController?.cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
                 cameraController?.enableTorch(true)
@@ -268,35 +269,43 @@ fun MeasureHeartRateScreen(
                 title = scanHeartRateModel.title,
                 description = scanHeartRateModel.description
             )
-            Box(
-                modifier = Modifier
-                    .padding(top = 20.dp)
-                    .size(142.dp)
-                    .background(color = Color.White, shape = CircleShape)
-            ) {
+            when (scanHeartRateModel.scanStatus ) {
+                ScanStatus.SCANNING ->
                 Box(
                     modifier = Modifier
-                        .clip(CircleShape)
-                        .size(112.dp)
-                        .align(Alignment.Center)
+                        .padding(top = 20.dp)
+                        .size(142.dp)
+                        .background(color = Color.White, shape = CircleShape)
                 ) {
-                    AndroidView(
-                        modifier = Modifier,
-                        factory = { context ->
-                            val previewView = PreviewView(context).apply {
-                                this.scaleType = scaleType
-                                layoutParams = ViewGroup.LayoutParams(
-                                    ViewGroup.LayoutParams.MATCH_PARENT,
-                                    ViewGroup.LayoutParams.MATCH_PARENT
-                                )
-                            }.also {
-                                it.controller = cameraController
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(112.dp)
+                            .align(Alignment.Center)
+                    ) {
+                        AndroidView(
+                            modifier = Modifier,
+                            factory = { context ->
+                                val previewView = PreviewView(context).apply {
+                                    this.scaleType = scaleType
+                                    layoutParams = ViewGroup.LayoutParams(
+                                        ViewGroup.LayoutParams.MATCH_PARENT,
+                                        ViewGroup.LayoutParams.MATCH_PARENT
+                                    )
+                                }.also {
+                                    it.controller = cameraController
+                                }
+                                previewView
                             }
-                            previewView
-                        }
-                    )
+                        )
+                    }
                 }
+
+                ScanStatus.MEASURING -> {HeartRateMeasuring()}
+                ScanStatus.ERROR -> {}
+                ScanStatus.NO_DETECTION -> {}
             }
+
             VoiceInstructions()
         }
         BottomInstructions(scanHeartRateModel.bottomInstruction)

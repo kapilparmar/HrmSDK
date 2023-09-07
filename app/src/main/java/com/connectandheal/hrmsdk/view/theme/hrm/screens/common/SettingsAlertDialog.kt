@@ -31,13 +31,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.soscare.customer.view.common.theme.ButtonSilveryGrey
-import com.soscare.customer.view.common.theme.Grey300
-import com.soscare.customer.view.common.theme.PrimarySolidGreen
-import com.soscare.customer.view.common.theme.SolidRed
-import com.soscare.customer.view.common.theme.TextStyle_Size14_Weight400
-import com.soscare.customer.view.common.theme.TextStyle_Size14_Weight700
-import com.soscare.customer.view.common.theme.TextStyle_Size18_Weight700
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.ButtonSilveryGrey
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey300
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidGreen
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.SolidRed
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight700
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size18_Weight700
 
 @Composable
 fun SettingsAlertDialogPermission(

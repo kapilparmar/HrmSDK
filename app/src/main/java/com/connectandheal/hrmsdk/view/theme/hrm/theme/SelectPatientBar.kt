@@ -13,12 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.soscare.customer.view.common.theme.Grey300
-import com.soscare.customer.view.common.theme.PrimarySolidBlue
-import com.soscare.customer.view.common.theme.TertiaryPastelOrange
-import com.soscare.customer.view.common.theme.TextStyle_Size14_Weight400
-import com.soscare.customer.view.common.theme.TextStyle_Size16_Weight400
-import com.soscare.customer.view.common.theme.TextStyle_Size16_Weight700
 
 @Composable
 fun SelectPatientBar(
@@ -47,7 +41,8 @@ fun SelectPatientBar(
             }
             Text(text = name.capitalize(),
                 style = TextStyle_Size16_Weight700,
-                color = Grey300)
+                color = Grey300
+            )
         }
         Text(text = "Change",
             style = TextStyle_Size14_Weight400,
