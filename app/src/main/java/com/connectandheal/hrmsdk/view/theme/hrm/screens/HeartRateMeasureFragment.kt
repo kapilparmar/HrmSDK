@@ -54,6 +54,7 @@ import com.connectandheal.hrmsdk.view.theme.hrm.routing.Destination
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.BottomInstructions
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.HeartRateMeasuring
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.HeartRateResult
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.TopInstructions
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.VoiceInstructions
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.toBitmap
@@ -205,10 +206,7 @@ fun HeartRateMeasureContent(
             }
 
             is HRMViewState.ResultAvailable -> {
-                HRMResultScreen(
-                    viewModel.heartRateInBpm.collectAsState(),
-                    cameraController = cameraController
-                )
+                HeartRateResult(hrmResultModel = viewState.hrmResultModel)
             }
 
             is HRMViewState.MotionDetected -> {

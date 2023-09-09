@@ -374,6 +374,12 @@ val TextStyle_Size20_Weight700: TextStyle
         fontSize = 20.sp,
         fontFamily = defaultFontFamily
     )
+val TextStyle_Size20_Weight400: TextStyle
+    get() = TextStyle(
+        fontWeight = FontWeight.W400,
+        fontSize = 20.sp,
+        fontFamily = defaultFontFamily
+    )
 
 val TextStyle_Size10_Weight400: TextStyle
     get() = TextStyle(

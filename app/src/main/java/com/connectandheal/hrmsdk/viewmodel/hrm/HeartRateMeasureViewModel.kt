@@ -3,6 +3,7 @@ package com.connectandheal.hrmsdk.viewmodel.hrm
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.connectandheal.hrmsdk.domain.HRMResultModel
 import com.connectandheal.hrmsdk.domain.ScanHeartRateModel
 import com.connectandheal.hrmsdk.domain.ScanStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,7 @@ sealed class HRMViewState {
     object Initial : HRMViewState()
     data class Scanning(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
     data class MeasureHeartRate(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
-    data class ResultAvailable(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
+    data class ResultAvailable(val hrmResultModel: HRMResultModel) : HRMViewState()
     data class Error(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
     data class MotionDetected(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
 }
@@ -127,7 +128,7 @@ class HeartRateMeasureViewModel @Inject constructor(
         Arrays.sort(timedist)
         med = timedist[timedist.size / 2].toInt()
         _heartRateInBpm.value = 60000 / med
-        _hrmViewState.value = HRMViewState.MeasureHeartRate(
+       /* _hrmViewState.value = HRMViewState.MeasureHeartRate(
             ScanHeartRateModel(
                 title = "Measuring...",
                 description = "Keep calm and take deep breaths",
@@ -135,7 +136,9 @@ class HeartRateMeasureViewModel @Inject constructor(
                         "when your hands are cold causing a weak signal.",
                 scanStatus = ScanStatus.MEASURING
             )
+        )*/
+        _hrmViewState.value = HRMViewState.ResultAvailable(
+            hrmResultModel = HRMResultModel()
         )
-//        _hrmViewState.value = HRMViewState.ResultAvailable
     }
 }

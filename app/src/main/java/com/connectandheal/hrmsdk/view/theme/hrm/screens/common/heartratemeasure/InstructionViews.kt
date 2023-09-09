@@ -140,11 +140,14 @@ fun VoiceInstructions() {
 @Composable
 fun HeartRateMeasuring() {
     Surface(
-        modifier = Modifier.padding(top = 12.dp).size(width = 170.dp, height = 250.dp),
+        modifier = Modifier
+            .padding(top = 12.dp)
+            .size(width = 170.dp, height = 250.dp),
         shape = RoundedCornerShape(
             topEnd = 85.dp, topStart = 85.dp, bottomEnd = 85.dp, bottomStart = 85.dp
         ),
         color = PrimaryWhite,
+        elevation = 5.dp
     ) {
         Column(horizontalAlignment = CenterHorizontally, modifier = Modifier.padding(top = 22.dp)) {
             CircularProgressBar(
@@ -159,7 +162,6 @@ fun HeartRateMeasuring() {
                 roundBorder = true,
                 labelEnabled = true
             )
-
             Row(
                 modifier = Modifier.padding(top = 20.dp),
                 horizontalArrangement = Arrangement.Center,
