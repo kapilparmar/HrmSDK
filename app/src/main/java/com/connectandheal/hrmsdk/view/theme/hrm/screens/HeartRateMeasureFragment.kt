@@ -99,7 +99,8 @@ class HeartRateMeasureFragment : Fragment() {
                 AppTheme {
                     MainContent(
                         viewModel = viewModel,
-                        cameraController = cameraController
+                        cameraController = cameraController,
+                        onBackPress = {}
                     )
                 }
             }
@@ -109,7 +110,8 @@ class HeartRateMeasureFragment : Fragment() {
     @Composable
     fun MainContent(
         viewModel: HeartRateMeasureViewModel,
-        cameraController: LifecycleCameraController?
+        cameraController: LifecycleCameraController?,
+        onBackPress :()-> Unit
     ) {
         Scaffold(
             modifier = Modifier
@@ -129,7 +131,9 @@ class HeartRateMeasureFragment : Fragment() {
                     actions = {
                         Text(
                             modifier = Modifier
-                                .clickable{}
+                                .clickable{
+                                    onBackPress()
+                                }
                                 .padding(end = 16.dp),
                             text = "History",
                             style = TextStyle_Size14_Weight400.copy(lineHeight = 22.sp),

@@ -121,7 +121,9 @@ fun LinearRoundedProgressIndicator(
     isLabelEnabled: Boolean = false,
     color: Color = MaterialTheme.colorScheme.primary,
     trackColor: Color = TertiaryPastelGray,
-    labelMinWidth: Dp = 24.dp
+    labelMinWidth: Dp = 24.dp,
+    startFraction : Float = 0.1f,
+    endFraction : Float = 0.1f,
 ) {
     Column {
         if (isLabelEnabled) {
@@ -152,7 +154,7 @@ fun LinearRoundedProgressIndicator(
         ) {
             val strokeWidth = size.height
             drawRoundedLinearIndicatorBackground(trackColor, strokeWidth)
-            drawRoundedLinearIndicator(0f, progress, color, strokeWidth)
+            drawRoundedLinearIndicator(startFraction, progress, color, strokeWidth)
         }
     }
 }

@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -21,7 +23,6 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +42,6 @@ import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.LinearRoundedProg
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.filledButtonColors
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.ButtonSilveryGrey
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey200
-import com.connectandheal.hrmsdk.view.theme.hrm.theme.HelveticaFontFamily
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidBlue
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidGreen
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.SecondaryStateViolet
@@ -50,10 +50,10 @@ import com.connectandheal.hrmsdk.view.theme.hrm.theme.TertiaryPastelWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextSolidBlue
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size12_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight700
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size18_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size20_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size34_Weight700
-import com.connectandheal.hrmsdk.view.theme.hrm.theme.subHeadingLarge
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,7 +79,6 @@ fun HeartRateResult(hrmResultModel: HRMResultModel) {
                 contentDescription = "hrm",
                 modifier = Modifier.fillMaxWidth()
             )
-
         }
         Row(
             modifier = Modifier
@@ -89,14 +88,14 @@ fun HeartRateResult(hrmResultModel: HRMResultModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_heart),
-                contentDescription = "instructions",
+                painter = painterResource(id = R.drawable.ic_heart_result),
+                contentDescription = "hear rate",
                 modifier = Modifier
                     .padding(start = 6.dp)
-                    .size(43.dp)
+                    .size(43.dp),
             )
             Text(
-                text = "22",
+                text = "${hrmResultModel.hrValue}",
                 style = TextStyle_Size34_Weight700,
                 color = Grey200,
                 modifier = Modifier.padding(start = 12.dp)
@@ -104,7 +103,7 @@ fun HeartRateResult(hrmResultModel: HRMResultModel) {
             Text(
                 text = "BPM",
                 style = TextStyle_Size12_Weight400, color = Grey200,
-                modifier = Modifier.padding(start = 2.dp),
+                modifier = Modifier.padding(start = 2.dp, top = 3.dp),
             )
         }
         Row(
@@ -121,18 +120,22 @@ fun HeartRateResult(hrmResultModel: HRMResultModel) {
             Image(
                 painter = painterResource(id = R.drawable.heart_rate_info),
                 contentDescription = "",
-                modifier = Modifier.size(18.dp),
+                modifier = Modifier
+                    .padding(start = 7.dp)
+                    .size(18.dp),
             )
         }
         LinearRoundedProgressIndicator(
-            progress = 80f,
+            progress = .8f,
             isLabelEnabled = false,
             modifier = Modifier
                 .height(10.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(10.dp)),
             color = colorResource(R.color.primary_solid_green),
-            trackColor = Color(0xffc4c4c4)
+            trackColor = TertiaryPastelWhite,
+            startFraction = 0.4f,
+            endFraction = 0.6f
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -165,7 +168,8 @@ fun HeartRateResult(hrmResultModel: HRMResultModel) {
                     modifier = Modifier.padding(horizontal = 6.dp),
                     backgroundColor = TertiaryPastelWhite,
                     selectedBackgroundColor = PrimarySolidBlue,
-                    image = R.drawable.ic_heart,
+                    title = item.activity.type,
+                    image = item.image,
                     isSelected = activitySelected.value == index,
                     onClick = {
                         activitySelected.value = index
@@ -179,45 +183,53 @@ fun HeartRateResult(hrmResultModel: HRMResultModel) {
             modifier = Modifier.padding(vertical = 23.dp),
             color = Color.Black
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 45.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            OutlinedButton(
-                border = BorderStroke(width = 1.dp, color = PrimarySolidBlue),
-                onClick = {}
-            ) {
-                Text(
-                    "Measure Again",
-                    fontFamily = HelveticaFontFamily,
-                    color = TextSolidBlue
-                )
-            }
+        MeasureButton(onClickMeasure = { },
+            onClickSave = {})
 
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(),
-                onClick = {
-
-                },
-                shape = RoundedCornerShape(8.dp),
-                colors = filledButtonColors(
-                    containerColor = SolidGreen,
-                    disabledColor = ButtonSilveryGrey
-                ),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            ) {
-                Text(
-                    text = "Save",
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.subHeadingLarge
-                )
-            }
-        }
     }
 }
 
+@Composable
+private fun MeasureButton(
+    onClickMeasure: () -> Unit,
+    onClickSave: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 45.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        OutlinedButton(
+            modifier = Modifier.weight(1f),
+            border = BorderStroke(width = 1.dp, color = PrimarySolidBlue),
+            shape = RoundedCornerShape(8.dp),
+            onClick = {}
+        ) {
+            Text(
+                text = "Measure Again",
+                style = TextStyle_Size16_Weight700,
+                color = TextSolidBlue,
+
+                )
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Button(
+            modifier = Modifier.weight(1f),
+            onClick = {},
+            shape = RoundedCornerShape(8.dp),
+            colors = filledButtonColors(
+                containerColor = SolidGreen,
+                disabledColor = ButtonSilveryGrey
+            ),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        ) {
+            Text(
+                text = "Save",
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                style = TextStyle_Size16_Weight700
+            )
+        }
+    }
+}

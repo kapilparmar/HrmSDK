@@ -25,6 +25,7 @@ fun ChipSurface(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Purple500,
     image: Int,
+    title : String,
     selectedBackgroundColor: Color,
     isSelected: Boolean,
     onClick : ()-> Unit
@@ -51,7 +52,7 @@ fun ChipSurface(
                 contentDescription = "trailingIcon"
             )
             Text(
-                text = "name",
+                text = title,
                 style = TextStyle_Size12_Weight400,
                 maxLines = 1,
                 color = if (isSelected) Color.White else Color.Black,
