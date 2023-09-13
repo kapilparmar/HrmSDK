@@ -58,7 +58,7 @@ import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size34_Weight700
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HeartRateResult(hrmResultModel: HRMResultModel) {
+fun HeartRateResult(hrmResultModel: HRMResultModel, onSaveClick: () -> Unit) {
     val listState = rememberLazyListState()
     val activitySelected = remember {
         mutableStateOf(0)
@@ -184,7 +184,7 @@ fun HeartRateResult(hrmResultModel: HRMResultModel) {
             color = Color.Black
         )
         MeasureButton(onClickMeasure = { },
-            onClickSave = {})
+            onClickSave = onSaveClick)
 
     }
 }
@@ -216,7 +216,7 @@ private fun MeasureButton(
         Spacer(modifier = Modifier.width(16.dp))
         Button(
             modifier = Modifier.weight(1f),
-            onClick = {},
+            onClick = onClickSave,
             shape = RoundedCornerShape(8.dp),
             colors = filledButtonColors(
                 containerColor = SolidGreen,

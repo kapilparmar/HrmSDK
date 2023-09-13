@@ -52,6 +52,7 @@ import com.connectandheal.hrmsdk.domain.ScanHeartRateModel
 import com.connectandheal.hrmsdk.domain.ScanStatus
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.Destination
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
+import com.connectandheal.hrmsdk.view.theme.hrm.routing.Router
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.BottomInstructions
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.HeartRateMeasuring
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.HeartRateResult
@@ -95,12 +96,14 @@ class HeartRateMeasureFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         return ComposeView(requireContext()).apply {
+            val router = Router(context = context)
             setContent {
                 AppTheme {
                     MainContent(
                         viewModel = viewModel,
                         cameraController = cameraController,
-                        onBackPress = {}
+                        onBackPress = {},
+                        onSaveClick = { router.navigate(ReadingErrorScreen()) }
                     )
                 }
             }
@@ -111,7 +114,8 @@ class HeartRateMeasureFragment : Fragment() {
     fun MainContent(
         viewModel: HeartRateMeasureViewModel,
         cameraController: LifecycleCameraController?,
-        onBackPress :()-> Unit
+        onBackPress :()-> Unit,
+        onSaveClick: () -> Unit
     ) {
         Scaffold(
             modifier = Modifier
@@ -131,7 +135,7 @@ class HeartRateMeasureFragment : Fragment() {
                     actions = {
                         Text(
                             modifier = Modifier
-                                .clickable{
+                                .clickable {
                                     onBackPress()
                                 }
                                 .padding(end = 16.dp),
@@ -146,7 +150,8 @@ class HeartRateMeasureFragment : Fragment() {
                 HeartRateMeasureContent(
                     paddingValues = paddingValues,
                     viewModel = viewModel,
-                    cameraController = cameraController
+                    cameraController = cameraController,
+                    onSaveClick = onSaveClick
                 )
             }
         )
@@ -158,7 +163,8 @@ class HeartRateMeasureFragment : Fragment() {
 fun HeartRateMeasureContent(
     paddingValues: PaddingValues,
     viewModel: HeartRateMeasureViewModel,
-    cameraController: LifecycleCameraController?
+    cameraController: LifecycleCameraController?,
+    onSaveClick: () -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
@@ -210,7 +216,7 @@ fun HeartRateMeasureContent(
             }
 
             is HRMViewState.ResultAvailable -> {
-                HeartRateResult(hrmResultModel = viewState.hrmResultModel)
+                HeartRateResult(hrmResultModel = viewState.hrmResultModel, onSaveClick = onSaveClick)
             }
 
             is HRMViewState.MotionDetected -> {
