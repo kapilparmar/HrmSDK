@@ -30,11 +30,13 @@ import androidx.compose.ui.unit.sp
 import com.connectandheal.hrmsdk.R
 import com.connectandheal.hrmsdk.domain.HeartRateZone
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey300
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidBlue
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidGreen
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimaryWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.SolidRed
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TertiaryPastelWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size12_Weight400
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size12_Weight700
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
 
 enum class FlowType {
@@ -157,7 +159,8 @@ fun HeartRateReadingInformation(
                     Text(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                         text = category,
-                        style = TextStyle_Size12_Weight400.copy(lineHeight = 18.sp)
+                        style = TextStyle_Size12_Weight700.copy(lineHeight = 18.sp),
+                        color = PrimarySolidBlue
                     )
                 }
             )
