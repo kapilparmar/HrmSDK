@@ -49,10 +49,5 @@ fun HandleMultiplePermissions(
                 showPermissionRequiredDialog()
             }
         }
-
-//        if (permissionsState.allPermissionsGranted) {
-//            onPermissionStateChanged(true)
-//        }
-//        askPermission?.value = false
     }
 }

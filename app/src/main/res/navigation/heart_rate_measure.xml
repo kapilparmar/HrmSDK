@@ -9,4 +9,9 @@
         android:name="com.connectandheal.hrmsdk.view.theme.hrm.screens.HeartRateMeasureFragment"
         android:label="HeartRateMeasureFragment" />
 
+    <fragment
+        android:id="@+id/heartRateHistoryScreen"
+        android:name="com.connectandheal.hrmsdk.view.theme.hrm.screens.HRMHistoryFragment"
+        android:label="HeartRateHistoryFragment" />
+
 </navigation>
