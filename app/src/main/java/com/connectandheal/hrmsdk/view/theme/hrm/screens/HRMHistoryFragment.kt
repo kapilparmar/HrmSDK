@@ -1,14 +1,15 @@
 package com.connectandheal.hrmsdk.view.theme.hrm.screens
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,50 +24,56 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.connectandheal.hrmsdk.R
-import com.connectandheal.hrmsdk.view.theme.hrm.routing.Destination
-import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
-import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.FullPageCircularLoader
-import com.connectandheal.hrmsdk.view.theme.hrm.theme.AppTheme
-import com.connectandheal.hrmsdk.view.theme.hrm.theme.DefaultAppBar
-import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey500
-import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight400
-import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateHistoryViewModel
-import com.connectandheal.hrmsdk.viewmodel.hrm.ViewState
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.parcelize.Parcelize
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.navigation.findNavController
-import com.connectandheal.hrmsdk.domain.PreviousReadingItem
+import com.connectandheal.hrmsdk.R
+import com.connectandheal.hrmsdk.domain.FilterType
 import com.connectandheal.hrmsdk.domain.HeartRateSummaryModel
 import com.connectandheal.hrmsdk.domain.NavBarConstants.SAFE_AREA_HEIGHT
 import com.connectandheal.hrmsdk.domain.Patient
+import com.connectandheal.hrmsdk.domain.PreviousReadingItem
+import com.connectandheal.hrmsdk.view.theme.hrm.routing.Destination
+import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.Router
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.FullPageCircularLoader
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.noRippleClickable
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.DateSection
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.FlowType
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.HRMPreviousReadingCard
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.HeartRateSummaryCard
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.TabSection
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.AppTheme
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.DefaultAppBar
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey200
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey500
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidGreen
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimaryWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.SelectPatientBar
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TertiaryPastelWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight700
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight400
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight700
+import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateHistoryViewModel
+import com.connectandheal.hrmsdk.viewmodel.hrm.ViewState
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class HRMHistoryScreen(
@@ -160,6 +167,7 @@ fun HRMHistoryScreenContent(
     )
 }
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun MainContent(
     paddingValues: PaddingValues,
@@ -173,20 +181,37 @@ fun MainContent(
         .padding(paddingValues)
         .fillMaxSize()
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .background(PrimaryWhite)
+        ) {
             SelectPatientBar(
                 name = viewModel.patient.collectAsState().value?.patientName ?: "",
                 onChangeClick = { }
             )
             Spacer(modifier = Modifier.height(26.dp))
-            TabSection()
+
+            TabSection(
+                filterList = viewModel.filterList,
+                selectedFilter = viewModel.selectedFilterType.collectAsStateWithLifecycle(),
+                onTabClick = viewModel::onFilterChange
+            )
+
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
                     .background(TertiaryPastelWhite)
+                    .padding(horizontal = 16.dp)
             ) {
-                DateSection()
                 Spacer(modifier = Modifier.height(16.dp))
+
+                DateSection(
+                    onBackArrowClick = {},
+                    onNextArrowClick = {},
+                    currentDateString = "2 Jul 2023"
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
                 HearRateReadingsContent(
                     heartRateSummaryModel = heartRateSummary,
                     previousReadings = previousReadings
@@ -221,13 +246,9 @@ fun HearRateReadingsContent(
     heartRateSummaryModel : State<HeartRateSummaryModel?>,
     previousReadings: State<List<PreviousReadingItem>>
 ) {
-    LazyColumn(modifier = Modifier
-        .fillMaxSize()
-        .padding(horizontal = 16.dp)
-    ) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
         heartRateSummaryModel.value?.let {
             item {
-                Spacer(modifier = Modifier.height(24.dp))
                 HeartRateSummaryCard(
                     heartRateSummaryModel = it
                 )
@@ -263,14 +284,4 @@ fun HearRateReadingsContent(
             Spacer(modifier = Modifier.height(SAFE_AREA_HEIGHT))
         }
     }
-}
-
-@Composable
-fun TabSection() {
-
-}
-
-@Composable
-fun DateSection() {
-
 }

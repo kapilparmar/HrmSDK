@@ -45,10 +45,17 @@ class HeartRateHistoryViewModel @Inject constructor(
         _viewState.asStateFlow()
     }
 
-    private val _filterType: MutableStateFlow<FilterType> = MutableStateFlow(FilterType.DAILY)
-    val filterType by lazy {
-        _filterType.asStateFlow()
+    private val _selectedFilterType: MutableStateFlow<FilterType> = MutableStateFlow(FilterType.DAILY)
+    val selectedFilterType by lazy {
+        _selectedFilterType.asStateFlow()
     }
+
+    val filterList = listOf<FilterType>(
+        FilterType.DAILY,
+        FilterType.WEEKLY,
+        FilterType.MONTHLY,
+        FilterType.YEARLY
+    )
 
     private val _previousReadings: MutableStateFlow<List<PreviousReadingItem>> = MutableStateFlow(
         listOf(
@@ -101,7 +108,7 @@ class HeartRateHistoryViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            filterType.collectLatest {
+            selectedFilterType.collectLatest {
                 fetchHistory()
             }
         }
@@ -112,5 +119,9 @@ class HeartRateHistoryViewModel @Inject constructor(
             _viewState.value = com.connectandheal.hrmsdk.viewmodel.hrm.ViewState.Loaded
             //call use case with latest patientId and filterType
         }
+    }
+
+    fun onFilterChange(selectedFilter: FilterType) {
+        _selectedFilterType.value = selectedFilter
     }
 }

@@ -10,8 +10,14 @@ data class Patient(
     val patientId: String
 ) : Parcelable
 
-enum class FilterType {
-    DAILY, WEEKLY, MONTHLY, YEARLY
+enum class FilterType(val key: String) {
+    DAILY("Daily"), WEEKLY("Weekly"), MONTHLY("Monthly"), YEARLY("Yearly");
+    companion object {
+        val map = values().associateBy(FilterType::key)
+        fun getString(filterType: FilterType): String {
+            return filterType.key
+        }
+    }
 }
 
 data class HeartRateSummaryType(
