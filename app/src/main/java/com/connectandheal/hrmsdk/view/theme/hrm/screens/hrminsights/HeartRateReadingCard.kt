@@ -17,6 +17,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import com.connectandheal.hrmsdk.R
 import com.connectandheal.hrmsdk.domain.HeartRateZone
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey300
@@ -54,78 +56,106 @@ fun HRMPreviousReadingCard(
     note: String = "",
     flowType: FlowType,
     onCardClick: () -> Unit,
-    onEditClick: () -> Unit = {}
+    onEditClick: () -> Unit = {},
+    onDelete: () -> Unit,
+    showDelete: State<Boolean>
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = PrimaryWhite
-        ),
-        onClick = onCardClick
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            HeartRateReadingInformation(
-                category = category,
-                measuredOn = measuredOn,
-                heartRate = heartRate,
-                heartRateZone = heartRateZone,
-                flowType = flowType
-            )
+    ConstraintLayout() {
+        val (crossButton, card) = createRefs()
 
-            if (flowType == FlowType.Editable) {
-                val annotatedString = buildAnnotatedString {
-                    withStyle(
-                        style = SpanStyle(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.W700,
-                            color = Grey300
-                        )
-                    ) {
-                        append("Note : ")
-                    }
-                    withStyle(
-                        style = SpanStyle(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.W400,
-                            color = Grey300
-                        )
-                    ) {
-                        append(note)
-                    }
-                }
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(card) {
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            },
+            colors = CardDefaults.cardColors(
+                containerColor = PrimaryWhite
+            ),
+            onClick = onCardClick
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                HeartRateReadingInformation(
+                    category = category,
+                    measuredOn = measuredOn,
+                    heartRate = heartRate,
+                    heartRateZone = heartRateZone,
+                    flowType = flowType
+                )
 
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = TertiaryPastelWhite,
-                    content = {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                modifier = Modifier.weight(0.75f),
-                                text = annotatedString,
-                                lineHeight = 18.sp,
-                                textAlign = TextAlign.Start
+                if (flowType == FlowType.Editable) {
+                    val annotatedString = buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.W700,
+                                color = Grey300
                             )
-                            Row {
-                                Spacer(modifier = Modifier.width(32.dp))
-                                IconButton(
-                                    modifier = Modifier.padding(8.dp),
-                                    content = {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_hrm_edit),
-                                            contentDescription = ""
-                                        )
-                                    },
-                                    onClick = onEditClick
-                                )
-                            }
+                        ) {
+                            append("Note : ")
+                        }
+                        withStyle(
+                            style = SpanStyle(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.W400,
+                                color = Grey300
+                            )
+                        ) {
+                            append(note)
                         }
                     }
+
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = TertiaryPastelWhite,
+                        content = {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    modifier = Modifier.weight(0.75f),
+                                    text = annotatedString,
+                                    lineHeight = 18.sp,
+                                    textAlign = TextAlign.Start
+                                )
+                                Row {
+                                    Spacer(modifier = Modifier.width(32.dp))
+                                    IconButton(
+                                        modifier = Modifier.padding(8.dp),
+                                        content = {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.ic_hrm_edit),
+                                                contentDescription = ""
+                                            )
+                                        },
+                                        onClick = onEditClick
+                                    )
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        if(showDelete.value) {
+            IconButton(
+                modifier = Modifier.padding(end = 16.dp).constrainAs(crossButton) {
+                    top.linkTo(parent.top)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(card.top, margin = 8.dp)
+                },
+                onClick = onDelete
+            ) {
+                Icon(
+                    //TODO icon needs to be changed, not able to export from figma
+                    painter = painterResource(id = R.drawable.ic_circular_close),
+                    contentDescription = "delete_records"
                 )
             }
         }

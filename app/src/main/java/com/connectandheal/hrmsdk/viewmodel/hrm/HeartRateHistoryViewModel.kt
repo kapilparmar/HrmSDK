@@ -63,6 +63,11 @@ class HeartRateHistoryViewModel @Inject constructor(
         _bottomSheetState.asStateFlow()
     }
 
+    private val _showDeleteButton: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val showDeleteButton by lazy {
+        _showDeleteButton.asStateFlow()
+    }
+
     private val _note: MutableStateFlow<String> = MutableStateFlow("")
     val note by lazy {
         _note.asStateFlow()
@@ -155,5 +160,9 @@ class HeartRateHistoryViewModel @Inject constructor(
 
     fun onNoteChange(newNote: String) {
         _note.value = newNote
+    }
+
+    fun toggleDeleteButtonState() {
+        _showDeleteButton.value = showDeleteButton.value.not()
     }
 }
