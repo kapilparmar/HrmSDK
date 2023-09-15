@@ -5,31 +5,34 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,7 +46,6 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.findNavController
 import com.connectandheal.hrmsdk.R
-import com.connectandheal.hrmsdk.domain.FilterType
 import com.connectandheal.hrmsdk.domain.HeartRateSummaryModel
 import com.connectandheal.hrmsdk.domain.NavBarConstants.SAFE_AREA_HEIGHT
 import com.connectandheal.hrmsdk.domain.Patient
@@ -53,7 +55,9 @@ import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.Router
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.FullPageCircularLoader
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.noRippleClickable
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.BottomSheetDeleteRow
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.DateSection
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.EditNote
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.FlowType
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.HRMPreviousReadingCard
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.HeartRateSummaryCard
@@ -69,10 +73,11 @@ import com.connectandheal.hrmsdk.view.theme.hrm.theme.TertiaryPastelWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight700
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight400
-import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight700
+import com.connectandheal.hrmsdk.viewmodel.hrm.BottomSheetState
 import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateHistoryViewModel
 import com.connectandheal.hrmsdk.viewmodel.hrm.ViewState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -86,9 +91,14 @@ class HRMHistoryFragment : Fragment() {
     private val viewModel: HeartRateHistoryViewModel by viewModels()
 
     sealed class Action {
-        object MeasureAgain: Action()
+        object MeasureAgain : Action()
+        object OpenSheetDeleteRecord : Action()
+        data class OpenSheetEditNote(
+            val previousReadingItem: PreviousReadingItem
+        ) : Action()
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -97,13 +107,84 @@ class HRMHistoryFragment : Fragment() {
             setContent {
                 AppTheme {
                     val router = Router(context, findNavController())
-                    HRMHistoryScreenContent(
-                        onBackPressed = { router.popBackStack() },
-                        viewModel = viewModel,
-                        onAction = {
+                    val coroutineScope = rememberCoroutineScope()
+                    val bottomSheetState = viewModel.bottomSheetState.collectAsState().value
 
+                    val sheetState =
+                        rememberModalBottomSheetState(
+                            initialValue = ModalBottomSheetValue.Hidden
+                        )
+
+                    val closeBottomSheet = {
+                        coroutineScope.launch {
+                            sheetState.hide()
                         }
-                    )
+                    }
+
+                    val openBottomSheet = {
+                        coroutineScope.launch {
+                            sheetState.animateTo(targetValue = ModalBottomSheetValue.Expanded)
+                        }
+                    }
+
+                    ModalBottomSheetLayout(
+                        sheetState = sheetState,
+                        sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                        sheetBackgroundColor = Color.White,
+                        sheetContent = {
+                            when (bottomSheetState) {
+                                is BottomSheetState.DeleteRecords -> {
+                                    BottomSheetDeleteRow(
+                                        onClick = {
+                                            //TODO
+                                        }
+                                    )
+                                }
+                                is BottomSheetState.EditNote -> {
+                                    EditNote(
+                                        bottomSheetState.previousReadingItem,
+                                        onDelete = {
+                                            //TODO
+                                        },
+                                        onSave = {
+                                            //TODO
+                                        },
+                                        onNoteChange = viewModel::onNoteChange,
+                                        note = viewModel.note.collectAsState()
+                                    )
+                                }
+                                else -> {
+                                    Box(modifier = Modifier.size(1.dp)) {}
+                                }
+                            }
+                        }
+                    ) {
+                        HRMHistoryScreenContent(
+                            onBackPressed = { router.popBackStack() },
+                            viewModel = viewModel,
+                            onAction = {
+                                when (it) {
+                                    is Action.OpenSheetDeleteRecord -> {
+                                        viewModel.changeBottomSheetState(BottomSheetState.DeleteRecords)
+                                        openBottomSheet()
+                                    }
+
+                                    is Action.OpenSheetEditNote -> {
+                                        viewModel.changeBottomSheetState(
+                                            BottomSheetState.EditNote(
+                                                it.previousReadingItem
+                                            )
+                                        )
+                                        openBottomSheet()
+                                    }
+
+                                    is Action.MeasureAgain -> {
+                                        //TODO
+                                    }
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -139,7 +220,7 @@ fun HRMHistoryScreenContent(
                 actions = {
                     Icon(
                         modifier = Modifier.noRippleClickable {
-                            //TODO
+                            onAction(HRMHistoryFragment.Action.OpenSheetDeleteRecord)
                         },
                         painter = painterResource(id = R.drawable.vertical_menu),
                         contentDescription = "",
@@ -177,13 +258,15 @@ fun MainContent(
     val previousReadings = viewModel.previousReadings.collectAsState()
     val heartRateSummary = viewModel.hearRateSummary.collectAsState()
 
-    Box(modifier = Modifier
-        .padding(paddingValues)
-        .fillMaxSize()
-    ) {
-        Column(modifier = Modifier
+    Box(
+        modifier = Modifier
+            .padding(paddingValues)
             .fillMaxSize()
-            .background(PrimaryWhite)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(PrimaryWhite)
         ) {
             SelectPatientBar(
                 name = viewModel.patient.collectAsState().value?.patientName ?: "",
@@ -214,7 +297,8 @@ fun MainContent(
 
                 HearRateReadingsContent(
                     heartRateSummaryModel = heartRateSummary,
-                    previousReadings = previousReadings
+                    previousReadings = previousReadings,
+                    onAction = onAction
                 )
             }
         }
@@ -243,8 +327,9 @@ fun MainContent(
 
 @Composable
 fun HearRateReadingsContent(
-    heartRateSummaryModel : State<HeartRateSummaryModel?>,
-    previousReadings: State<List<PreviousReadingItem>>
+    heartRateSummaryModel: State<HeartRateSummaryModel?>,
+    previousReadings: State<List<PreviousReadingItem>>,
+    onAction: (HRMHistoryFragment.Action) -> Unit
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         heartRateSummaryModel.value?.let {
@@ -273,9 +358,11 @@ fun HearRateReadingsContent(
                     heartRate = item.heartRateValue,
                     heartRateZone = item.heartRateZone,
                     measuredOn = item.measuredOn,
-                    flowType = if(item.note.isNotEmpty()) FlowType.Editable else FlowType.Normal,
+                    flowType = if (item.note.isNotEmpty()) FlowType.Editable else FlowType.Normal,
                     note = item.note,
-                    onCardClick = {}
+                    onCardClick = {
+                        onAction(HRMHistoryFragment.Action.OpenSheetEditNote(item))
+                    }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
