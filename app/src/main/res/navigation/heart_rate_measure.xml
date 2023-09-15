@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/heart_rate_measure.xml"
-    app:startDestination="@id/heartRateMeasureScreen">
+    app:startDestination="@id/readingErrorScreen">
 
     <fragment
         android:id="@+id/heartRateMeasureScreen"
@@ -13,5 +13,9 @@
         android:id="@+id/heartRateHistoryScreen"
         android:name="com.connectandheal.hrmsdk.view.theme.hrm.screens.HRMHistoryFragment"
         android:label="HeartRateHistoryFragment" />
-
+  
+     <fragment
+        android:id="@+id/readingErrorScreen"
+        android:name="com.connectandheal.hrmsdk.view.theme.hrm.screens.ReadingErrorFragment"
+        android:label="ReadingErrorFragment" />
 </navigation>
