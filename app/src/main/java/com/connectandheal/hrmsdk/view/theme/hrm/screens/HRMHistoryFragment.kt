@@ -366,13 +366,8 @@ fun HearRateReadingsContent(
 
             itemsIndexed(previousReadings.value) { _, item ->
                 HRMPreviousReadingCard(
-                    id = item.id,
-                    category = item.category,
-                    heartRate = item.heartRateValue,
-                    heartRateZone = item.heartRateZone,
-                    measuredOn = item.measuredOn,
+                    item = item,
                     flowType = if (item.note.isNotEmpty()) FlowType.Editable else FlowType.Normal,
-                    note = item.note,
                     onCardClick = {
                         onAction(HRMHistoryFragment.Action.OpenSheetEditNote(item))
                     },

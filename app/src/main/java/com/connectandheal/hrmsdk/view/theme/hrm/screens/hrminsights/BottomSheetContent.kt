@@ -99,7 +99,7 @@ fun EditNote(
         HeartRateReadingInformation(
             category = previousReadingItem.category,
             measuredOn = previousReadingItem.measuredOn,
-            heartRate = previousReadingItem.heartRateValue,
+            heartRateValue = previousReadingItem.heartRateValue,
             heartRateZone = previousReadingItem.heartRateZone,
             flowType = FlowType.BottomSheet
         )

@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.connectandheal.hrmsdk.R
 import com.connectandheal.hrmsdk.domain.HeartRateZone
+import com.connectandheal.hrmsdk.domain.PreviousReadingItem
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey300
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidBlue
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidGreen
@@ -48,17 +49,12 @@ enum class FlowType {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HRMPreviousReadingCard(
-    id: String,
-    category: String,
-    measuredOn: String,
-    heartRate: String,
-    heartRateZone: HeartRateZone,
-    note: String = "",
+    item: PreviousReadingItem,
     flowType: FlowType,
     onCardClick: () -> Unit,
     onEditClick: () -> Unit = {},
     onDelete: () -> Unit,
-    showDelete: State<Boolean>
+    showDelete: State<Boolean>,
 ) {
     ConstraintLayout() {
         val (crossButton, card) = createRefs()
@@ -78,10 +74,10 @@ fun HRMPreviousReadingCard(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 HeartRateReadingInformation(
-                    category = category,
-                    measuredOn = measuredOn,
-                    heartRate = heartRate,
-                    heartRateZone = heartRateZone,
+                    category = item.category,
+                    measuredOn = item.measuredOn,
+                    heartRateValue = item.heartRateValue,
+                    heartRateZone = item.heartRateZone,
                     flowType = flowType
                 )
 
@@ -103,7 +99,7 @@ fun HRMPreviousReadingCard(
                                 color = Grey300
                             )
                         ) {
-                            append(note)
+                            append(item.note)
                         }
                     }
 
@@ -166,7 +162,7 @@ fun HRMPreviousReadingCard(
 fun HeartRateReadingInformation(
     category: String,
     measuredOn: String,
-    heartRate: String,
+    heartRateValue: String,
     heartRateZone: HeartRateZone,
     flowType : FlowType,
 ) {
@@ -203,7 +199,7 @@ fun HeartRateReadingInformation(
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = heartRate,
+                text = heartRateValue,
                 style = TextStyle_Size14_Weight400.copy(fontSize = 42.sp, lineHeight = 30.sp)
             )
             Spacer(modifier = Modifier.width(8.dp))
