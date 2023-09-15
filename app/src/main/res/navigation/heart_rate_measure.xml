@@ -10,8 +10,12 @@
         android:label="HeartRateMeasureFragment" />
 
     <fragment
+        android:id="@+id/heartRateHistoryScreen"
+        android:name="com.connectandheal.hrmsdk.view.theme.hrm.screens.HRMHistoryFragment"
+        android:label="HeartRateHistoryFragment" />
+  
+     <fragment
         android:id="@+id/readingErrorScreen"
         android:name="com.connectandheal.hrmsdk.view.theme.hrm.screens.ReadingErrorFragment"
         android:label="ReadingErrorFragment" />
-
 </navigation>

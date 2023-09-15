@@ -44,7 +44,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import com.connectandheal.hrmsdk.R
+import com.connectandheal.hrmsdk.domain.Patient
 import com.connectandheal.hrmsdk.domain.ScanHeartRateModel
 import com.connectandheal.hrmsdk.domain.ScanStatus
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.Destination
@@ -66,6 +68,7 @@ import com.connectandheal.hrmsdk.view.theme.hrm.theme.TertiaryPastelWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight400
 import com.connectandheal.hrmsdk.viewmodel.hrm.HRMViewState
+import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateHistoryViewModel
 import com.connectandheal.hrmsdk.viewmodel.hrm.HRMeasuredValues
 import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateMeasureViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -74,7 +77,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class HeartRateMeasureScreen(
-    override val destination: Destination.Fragment = Destination.Fragment(R.id.heartRateMeasureScreen)
+    override val destination: Destination.Fragment = Destination.Fragment(R.id.heartRateMeasureScreen),
 ) : FragmentRouteProtocol
 
 private var cameraController: LifecycleCameraController? = null
@@ -83,6 +86,10 @@ private var cameraController: LifecycleCameraController? = null
 class HeartRateMeasureFragment : Fragment() {
     private val viewModel: HeartRateMeasureViewModel by viewModels()
 
+    sealed class Action {
+        object HistoryScreen: Action()
+        object Back: Action()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,10 +106,23 @@ class HeartRateMeasureFragment : Fragment() {
             val router = Router(context = context)
             setContent {
                 AppTheme {
+                    val router = Router(context, findNavController())
                     MainContent(
                         viewModel = viewModel,
                         cameraController = cameraController,
-                        onBackPress = {},
+                        onAction = {
+                            when(it) {
+                                is Action.HistoryScreen -> {
+                                    router.navigate(HRMHistoryScreen(
+                                        patient = Patient(
+                                            patientId = "",
+                                            patientName = ""
+                                        )
+                                    ))
+                                }
+                                is Action.Back -> {}
+                            }
+                        }
                         onSaveClick = { router.navigate(ReadingErrorScreen()) }
                     )
                 }
@@ -113,15 +133,14 @@ class HeartRateMeasureFragment : Fragment() {
     @Composable
     fun MainContent(
         viewModel: HeartRateMeasureViewModel,
-        cameraController: LifecycleCameraController?,
-        onBackPress: () -> Unit,
+        cameraController: LifecycleCameraController?
+        onAction: (Action) -> Unit
         onSaveClick: () -> Unit
     ) {
         Scaffold(
             modifier = Modifier
                 .systemBarsPadding()
                 .fillMaxSize(),
-
             topBar = {
                 DefaultAppBar(
                     title = {
@@ -135,15 +154,16 @@ class HeartRateMeasureFragment : Fragment() {
                     actions = {
                         Text(
                             modifier = Modifier
-                                .clickable {
-                                    onBackPress()
+                                .clickable{
+                                   onAction(Action.HistoryScreen)
                                 }
                                 .padding(end = 16.dp),
                             text = "History",
                             style = TextStyle_Size14_Weight400.copy(lineHeight = 22.sp),
                             color = PrimarySolidBlue
                         )
-                    }
+                    },
+                    onBackPressed = { onAction(Action.Back) }
                 )
             },
             content = { paddingValues ->
