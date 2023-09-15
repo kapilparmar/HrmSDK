@@ -9,10 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -40,11 +36,11 @@ fun CircularProgressBar(
     animationDuration: Int = 100,
     animationDelay: Int = 0
 ) {
-    var progressValue by remember {
+   /* var progressValue by remember {
         mutableStateOf(progress)
-    }
+    }*/
     val animateNumber = animateFloatAsState(
-        targetValue = progressValue,
+        targetValue = progress,
         animationSpec = tween(
             durationMillis = animationDuration,
             delayMillis = animationDelay
