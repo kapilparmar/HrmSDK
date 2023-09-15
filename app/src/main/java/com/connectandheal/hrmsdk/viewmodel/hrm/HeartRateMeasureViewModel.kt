@@ -8,12 +8,14 @@ import com.connectandheal.hrmsdk.domain.ScanHeartRateModel
 import com.connectandheal.hrmsdk.domain.ScanStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Arrays
 import javax.inject.Inject
+import kotlin.random.Random
 
 sealed class HRMViewState {
     object Initial : HRMViewState()
@@ -23,7 +25,11 @@ sealed class HRMViewState {
     data class Error(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
     data class MotionDetected(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
 }
-
+data class HRMeasuredValues(
+    val completed : Float,
+    val hrValue : Int,
+    val hrValueList : List<Float>
+)
 @HiltViewModel
 class HeartRateMeasureViewModel @Inject constructor(
 ) : ViewModel() {
@@ -58,6 +64,10 @@ class HeartRateMeasureViewModel @Inject constructor(
     private val _mNumBeats: MutableStateFlow<Int> = MutableStateFlow(0)
     val mNumBeats by lazy {
         _mNumBeats.asStateFlow()
+    }
+    private val _hrValue: MutableStateFlow<HRMeasuredValues?> = MutableStateFlow(null)
+    val hrValue by lazy {
+        _hrValue.asStateFlow()
     }
 
     init {
@@ -104,6 +114,7 @@ class HeartRateMeasureViewModel @Inject constructor(
                     _mNumBeats.value = mNumBeats.value + 1
                     if (mNumBeats.value == 15) {
                         calcBPM()
+                        randomNumberInRange()
                     }
                 }
             }
@@ -128,7 +139,7 @@ class HeartRateMeasureViewModel @Inject constructor(
         Arrays.sort(timedist)
         med = timedist[timedist.size / 2].toInt()
         _heartRateInBpm.value = 60000 / med
-       /* _hrmViewState.value = HRMViewState.MeasureHeartRate(
+        _hrmViewState.value = HRMViewState.MeasureHeartRate(
             ScanHeartRateModel(
                 title = "Measuring...",
                 description = "Keep calm and take deep breaths",
@@ -136,9 +147,27 @@ class HeartRateMeasureViewModel @Inject constructor(
                         "when your hands are cold causing a weak signal.",
                 scanStatus = ScanStatus.MEASURING
             )
-        )*/
-        _hrmViewState.value = HRMViewState.ResultAvailable(
-            hrmResultModel = HRMResultModel()
         )
+        /*_hrmViewState.value = HRMViewState.ResultAvailable(
+            hrmResultModel = HRMResultModel()
+        )*/
+    }
+
+    private fun randomNumberInRange() {
+        var hrList = listOf<Float>()
+        var completed = 0f
+        viewModelScope.launch {
+            while (true) {
+                val randomValue = (Random.nextFloat() * (180 - 60) + 60)
+                hrList = hrList + randomValue
+                completed+= 1
+                _hrValue.value = HRMeasuredValues(
+                    completed = completed,
+                    hrValue = randomValue.toInt(),
+                    hrValueList = hrList
+                )
+                delay(3000) // 0.3 seconds delay
+            }
+        }
     }
 }
