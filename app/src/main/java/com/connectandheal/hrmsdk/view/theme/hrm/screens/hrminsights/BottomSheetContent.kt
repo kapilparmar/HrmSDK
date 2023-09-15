@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -59,11 +60,13 @@ fun BottomSheetDeleteRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_hrm_trash),
-                contentDescription = ""
+                contentDescription = "",
+                tint = Color.Unspecified
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
@@ -96,7 +99,7 @@ fun EditNote(
         HeartRateReadingInformation(
             category = previousReadingItem.category,
             measuredOn = previousReadingItem.measuredOn,
-            heartRate = previousReadingItem.heartRateValue,
+            heartRateValue = previousReadingItem.heartRateValue,
             heartRateZone = previousReadingItem.heartRateZone,
             flowType = FlowType.BottomSheet
         )

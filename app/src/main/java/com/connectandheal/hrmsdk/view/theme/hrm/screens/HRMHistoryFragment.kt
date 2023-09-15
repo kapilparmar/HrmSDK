@@ -136,7 +136,8 @@ class HRMHistoryFragment : Fragment() {
                                 is BottomSheetState.DeleteRecords -> {
                                     BottomSheetDeleteRow(
                                         onClick = {
-                                            //TODO
+                                            viewModel.toggleDeleteButtonState()
+                                            closeBottomSheet()
                                         }
                                     )
                                 }
@@ -230,7 +231,7 @@ fun HRMHistoryScreenContent(
             )
         },
         content = { paddingValues ->
-            when (val state = viewState) {
+            when (viewState) {
                 is ViewState.Loading -> {
                     FullPageCircularLoader()
                 }
@@ -248,7 +249,6 @@ fun HRMHistoryScreenContent(
     )
 }
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun MainContent(
     paddingValues: PaddingValues,
@@ -257,6 +257,7 @@ fun MainContent(
 ) {
     val previousReadings = viewModel.previousReadings.collectAsState()
     val heartRateSummary = viewModel.hearRateSummary.collectAsState()
+    val showDeleteButton = viewModel.showDeleteButton.collectAsState()
 
     Box(
         modifier = Modifier
@@ -276,7 +277,7 @@ fun MainContent(
 
             TabSection(
                 filterList = viewModel.filterList,
-                selectedFilter = viewModel.selectedFilterType.collectAsStateWithLifecycle(),
+                selectedFilter = viewModel.selectedFilterType.collectAsState(),
                 onTabClick = viewModel::onFilterChange
             )
 
@@ -288,9 +289,13 @@ fun MainContent(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 DateSection(
-                    onBackArrowClick = {},
-                    onNextArrowClick = {},
-                    currentDateString = "2 Jul 2023"
+                    onBackArrowClick = {
+                        //TODO
+                    },
+                    onNextArrowClick = {
+                        //TODO
+                    },
+                    currentDateString = "2 Jul 2023" //TODO
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -298,6 +303,7 @@ fun MainContent(
                 HearRateReadingsContent(
                     heartRateSummaryModel = heartRateSummary,
                     previousReadings = previousReadings,
+                    showDeleteButton = showDeleteButton,
                     onAction = onAction
                 )
             }
@@ -309,7 +315,13 @@ fun MainContent(
                 .padding(start = 16.dp, end = 16.dp, bottom = 32.dp)
                 .fillMaxWidth(),
             onClick = {
-                onAction(HRMHistoryFragment.Action.MeasureAgain)
+                if (showDeleteButton.value) {
+                    // TODO other action if any
+                    viewModel.toggleDeleteButtonState()
+                }
+                else {
+                    onAction(HRMHistoryFragment.Action.MeasureAgain)
+                }
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = PrimarySolidGreen,
@@ -318,7 +330,7 @@ fun MainContent(
             shape = RoundedCornerShape(8.dp)
         ) {
             Text(
-                text = "Measure Again",
+                text = if (showDeleteButton.value) "Done" else "Measure Again",
                 style = TextStyle_Size14_Weight400.copy(lineHeight = 21.sp)
             )
         }
@@ -329,7 +341,8 @@ fun MainContent(
 fun HearRateReadingsContent(
     heartRateSummaryModel: State<HeartRateSummaryModel?>,
     previousReadings: State<List<PreviousReadingItem>>,
-    onAction: (HRMHistoryFragment.Action) -> Unit
+    showDeleteButton: State<Boolean>,
+    onAction: (HRMHistoryFragment.Action) -> Unit,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         heartRateSummaryModel.value?.let {
@@ -353,22 +366,27 @@ fun HearRateReadingsContent(
 
             itemsIndexed(previousReadings.value) { _, item ->
                 HRMPreviousReadingCard(
-                    id = item.id,
-                    category = item.category,
-                    heartRate = item.heartRateValue,
-                    heartRateZone = item.heartRateZone,
-                    measuredOn = item.measuredOn,
+                    item = item,
                     flowType = if (item.note.isNotEmpty()) FlowType.Editable else FlowType.Normal,
-                    note = item.note,
                     onCardClick = {
                         onAction(HRMHistoryFragment.Action.OpenSheetEditNote(item))
-                    }
+                    },
+                    onDelete = {
+
+                    },
+                    showDelete = showDeleteButton
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
+
         item {
             Spacer(modifier = Modifier.height(SAFE_AREA_HEIGHT))
         }
     }
+}
+
+@Composable
+fun EmptyDataView() {
+
 }
