@@ -14,7 +14,6 @@ import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,7 +29,6 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -40,7 +38,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -52,11 +49,12 @@ import com.connectandheal.hrmsdk.domain.ScanHeartRateModel
 import com.connectandheal.hrmsdk.domain.ScanStatus
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.Destination
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.PPGChart
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.BottomInstructions
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.Disclaimer
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.HeartRateMeasuring
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.HeartRateResult
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.TopInstructions
-import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.VoiceInstructions
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.toBitmap
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.AppTheme
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.DefaultAppBar
@@ -67,8 +65,10 @@ import com.connectandheal.hrmsdk.view.theme.hrm.theme.TertiaryPastelWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight400
 import com.connectandheal.hrmsdk.viewmodel.hrm.HRMViewState
+import com.connectandheal.hrmsdk.viewmodel.hrm.HRMeasuredValues
 import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateMeasureViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -111,7 +111,7 @@ class HeartRateMeasureFragment : Fragment() {
     fun MainContent(
         viewModel: HeartRateMeasureViewModel,
         cameraController: LifecycleCameraController?,
-        onBackPress :()-> Unit
+        onBackPress: () -> Unit
     ) {
         Scaffold(
             modifier = Modifier
@@ -131,7 +131,7 @@ class HeartRateMeasureFragment : Fragment() {
                     actions = {
                         Text(
                             modifier = Modifier
-                                .clickable{
+                                .clickable {
                                     onBackPress()
                                 }
                                 .padding(end = 16.dp),
@@ -205,7 +205,8 @@ fun HeartRateMeasureContent(
             is HRMViewState.MeasureHeartRate -> {
                 MeasureHeartRateScreen(
                     cameraController = cameraController,
-                    scanHeartRateModel = viewState.scanHeartRateModel
+                    scanHeartRateModel = viewState.scanHeartRateModel,
+                    hrValue = viewModel.hrValue
                 )
             }
 
@@ -216,14 +217,16 @@ fun HeartRateMeasureContent(
             is HRMViewState.MotionDetected -> {
                 MeasureHeartRateScreen(
                     cameraController = cameraController,
-                    scanHeartRateModel = viewState.scanHeartRateModel
+                    scanHeartRateModel = viewState.scanHeartRateModel,
+                    hrValue = viewModel.hrValue
                 )
             }
 
             is HRMViewState.Scanning -> {
                 MeasureHeartRateScreen(
                     cameraController = cameraController,
-                    scanHeartRateModel = viewState.scanHeartRateModel
+                    scanHeartRateModel = viewState.scanHeartRateModel,
+                    hrValue = viewModel.hrValue
                 )
             }
 
@@ -233,26 +236,15 @@ fun HeartRateMeasureContent(
     }
 }
 
-@Composable
-fun HRMResultScreen(
-    heartRateInBpm: State<Int>,
-    cameraController: LifecycleCameraController?
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "${heartRateInBpm.value}")
-    }
-}
 
 @OptIn(ExperimentalGetImage::class)
 @Composable
 fun MeasureHeartRateScreen(
     cameraController: LifecycleCameraController?,
-    scanHeartRateModel: ScanHeartRateModel
+    scanHeartRateModel: ScanHeartRateModel,
+    hrValue: StateFlow<HRMeasuredValues?>
 ) {
+    val hrValueState = hrValue.collectAsState().value
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -271,60 +263,58 @@ fun MeasureHeartRateScreen(
                 title = scanHeartRateModel.title,
                 description = scanHeartRateModel.description
             )
-            when (scanHeartRateModel.scanStatus ) {
-                ScanStatus.SCANNING ->
-                Box(
-                    modifier = Modifier
-                        .padding(top = 20.dp)
-                        .size(142.dp)
-                        .background(color = Color.White, shape = CircleShape)
-                ) {
+            when (scanHeartRateModel.scanStatus) {
+                ScanStatus.SCANNING -> {
+
                     Box(
                         modifier = Modifier
-                            .clip(CircleShape)
-                            .size(112.dp)
-                            .align(Alignment.Center)
+                            .padding(top = 20.dp)
+                            .size(142.dp)
+                            .background(color = Color.White, shape = CircleShape)
                     ) {
-                        AndroidView(
-                            modifier = Modifier,
-                            factory = { context ->
-                                val previewView = PreviewView(context).apply {
-                                    this.scaleType = scaleType
-                                    layoutParams = ViewGroup.LayoutParams(
-                                        ViewGroup.LayoutParams.MATCH_PARENT,
-                                        ViewGroup.LayoutParams.MATCH_PARENT
-                                    )
-                                }.also {
-                                    it.controller = cameraController
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .size(112.dp)
+                                .align(Alignment.Center)
+                        ) {
+                            AndroidView(
+                                modifier = Modifier,
+                                factory = { context ->
+                                    val previewView = PreviewView(context).apply {
+                                        this.scaleType = scaleType
+                                        layoutParams = ViewGroup.LayoutParams(
+                                            ViewGroup.LayoutParams.MATCH_PARENT,
+                                            ViewGroup.LayoutParams.MATCH_PARENT
+                                        )
+                                    }.also {
+                                        it.controller = cameraController
+                                    }
+                                    previewView
                                 }
-                                previewView
-                            }
+                            )
+                        }
+                    }
+                    Disclaimer(disclaimer = scanHeartRateModel.disclaimer)
+                }
+
+                ScanStatus.MEASURING -> {
+                    HeartRateMeasuring(hrValue = hrValueState)
+                    hrValueState?.hrValueList?.let {
+                        PPGChart(
+                            hrValue = it,
+                            modifier = Modifier,
+                            lineColor = Color.Transparent,
+                            lineWidth = 2f
                         )
                     }
                 }
 
-                ScanStatus.MEASURING -> {HeartRateMeasuring()}
                 ScanStatus.ERROR -> {}
                 ScanStatus.NO_DETECTION -> {}
             }
-
-            VoiceInstructions()
         }
         BottomInstructions(scanHeartRateModel.bottomInstruction)
 
     }
-}
-
-@Preview
-@Composable
-fun Preview() {
-    MeasureHeartRateScreen(
-        cameraController,
-        scanHeartRateModel = ScanHeartRateModel(
-            title = "Scanning",
-            description = "Place your finger gently on the back camera and hold it there",
-            bottomInstruction = "Place your finger on the camera to measure the heart rate",
-            scanStatus = ScanStatus.SCANNING
-        )
-    )
 }

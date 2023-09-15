@@ -105,9 +105,9 @@ private fun ScreenContent(
                         }
                     }
                 ) {
-                    Text(
-                        text = "Start Measuring", style = TextStyle_Size18_Weight700
-                    )
+                   Text(
+                        text = "Start Measuring", style = TextStyle_Size18_Weight700)
+
                 }
             }
         }
