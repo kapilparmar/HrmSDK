@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.connectandheal.hrmsdk.domain.HRMResultModel
 import com.connectandheal.hrmsdk.domain.ScanHeartRateModel
 import com.connectandheal.hrmsdk.domain.ScanStatus
+import com.connectandheal.hrmsdk.domain.getActivities
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -25,11 +26,13 @@ sealed class HRMViewState {
     data class Error(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
     data class MotionDetected(val scanHeartRateModel: ScanHeartRateModel) : HRMViewState()
 }
+
 data class HRMeasuredValues(
-    val completed : Float,
-    val hrValue : Int,
-    val hrValueList : List<Float>
+    val completed: Float,
+    val hrValue: Int,
+    val hrValueList: List<Float>
 )
+
 @HiltViewModel
 class HeartRateMeasureViewModel @Inject constructor(
 ) : ViewModel() {
@@ -69,6 +72,8 @@ class HeartRateMeasureViewModel @Inject constructor(
     val hrValue by lazy {
         _hrValue.asStateFlow()
     }
+    val activities = getActivities()
+    val heartRateResult = HRMResultModel()
 
     init {
         _hrmViewState.value = HRMViewState.Scanning(
@@ -160,7 +165,7 @@ class HeartRateMeasureViewModel @Inject constructor(
             while (true) {
                 val randomValue = (Random.nextFloat() * (180 - 60) + 60)
                 hrList = hrList + randomValue
-                completed+= 1
+                completed += 1
                 _hrValue.value = HRMeasuredValues(
                     completed = completed,
                     hrValue = randomValue.toInt(),

@@ -181,18 +181,29 @@ fun HeartRateMeasuring(hrValue: HRMeasuredValues?) {
                         .padding(start = 6.dp)
                         .size(43.dp)
                 )
-                Text(
-                    text = "${hrValue?.hrValue?: "--"}",
-                    style = TextStyle_Size34_Weight700, color = Grey200
-                )
+                Column {
+                    Text(
+                        text = "${hrValue?.hrValue?: "--"}",
+                        style = TextStyle_Size34_Weight700, color = Grey200
+                    )
+                    Text(
+                        text = "BPM",
+                        style = TextStyle_Size12_Weight400,
+                        color = Grey200,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
             }
         }
     }
 }
 @Composable
 fun Disclaimer(disclaimer : String){
-    Column(Modifier.padding(top = 80.dp, bottom = 20.dp)
-        .padding(horizontal = 16.dp)) {
+    Column(
+        Modifier
+            .padding(top = 80.dp, bottom = 20.dp)
+            .padding(horizontal = 16.dp)) {
         Text(
             text = "Disclaimer!",
             style = TextStyle_Size14_Weight700,

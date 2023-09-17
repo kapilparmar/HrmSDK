@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,7 +50,6 @@ import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size12_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight700
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size18_Weight400
-import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size20_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size34_Weight700
 
 
@@ -146,34 +143,6 @@ fun HeartRateResult(hrmResultModel: HRMResultModel, onSaveClick: () -> Unit) {
                     text = "$hr",
                     style = TextStyle_Size12_Weight400,
                     color = SecondaryStateViolet,
-                )
-            }
-        }
-        Text(
-            text = "Activity in last 15 minutes",
-            style = TextStyle_Size20_Weight400,
-            modifier = Modifier.padding(top = 60.dp),
-            color = Color.Black
-        )
-        LazyRow(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(),
-            state = listState
-
-        ) {
-            itemsIndexed(items = hrmResultModel.activities) { index, item ->
-                ChipSurface(
-                    modifier = Modifier.padding(horizontal = 6.dp),
-                    backgroundColor = TertiaryPastelWhite,
-                    selectedBackgroundColor = PrimarySolidBlue,
-                    title = item.activity.type,
-                    image = item.image,
-                    isSelected = activitySelected.value == index,
-                    onClick = {
-                        activitySelected.value = index
-                    },
                 )
             }
         }

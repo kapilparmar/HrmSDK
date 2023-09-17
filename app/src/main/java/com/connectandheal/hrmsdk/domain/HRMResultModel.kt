@@ -14,7 +14,7 @@ data class Activities(
     val  activity : ActivityType,
     val image : Int
 )
-private fun getActivities ():List<Activities>{
+ fun getActivities ():List<Activities>{
     return mutableListOf(
         Activities(ActivityType.RESTING, R.drawable.ic_resting),
         Activities(ActivityType.WALKING, R.drawable.ic_walking),

@@ -5,11 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,7 +22,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,7 +40,6 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.findNavController
 import com.connectandheal.hrmsdk.R
-import com.connectandheal.hrmsdk.domain.FilterType
 import com.connectandheal.hrmsdk.domain.HeartRateSummaryModel
 import com.connectandheal.hrmsdk.domain.NavBarConstants.SAFE_AREA_HEIGHT
 import com.connectandheal.hrmsdk.domain.Patient
@@ -52,6 +48,8 @@ import com.connectandheal.hrmsdk.view.theme.hrm.routing.Destination
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.Router
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.FullPageCircularLoader
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.barchart.BarChart
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.barchart.BarChartEntity
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.noRippleClickable
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.DateSection
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.FlowType
@@ -62,6 +60,7 @@ import com.connectandheal.hrmsdk.view.theme.hrm.theme.AppTheme
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.DefaultAppBar
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey200
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey500
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidBlue
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidGreen
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimaryWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.SelectPatientBar
@@ -69,7 +68,6 @@ import com.connectandheal.hrmsdk.view.theme.hrm.theme.TertiaryPastelWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight700
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight400
-import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight700
 import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateHistoryViewModel
 import com.connectandheal.hrmsdk.viewmodel.hrm.ViewState
 import dagger.hilt.android.AndroidEntryPoint
@@ -169,7 +167,7 @@ fun HRMHistoryScreenContent(
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
-fun MainContent(
+private fun MainContent(
     paddingValues: PaddingValues,
     viewModel: HeartRateHistoryViewModel,
     onAction: (HRMHistoryFragment.Action) -> Unit
@@ -211,7 +209,24 @@ fun MainContent(
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
+                val barChartData = ArrayList<BarChartEntity>()
+                 barChartData.add( BarChartEntity(listOf(120f,120f), PrimarySolidBlue, "mon"))
+                 barChartData.add( BarChartEntity(listOf(80f, 120f), PrimarySolidBlue, "tues"))
+                 barChartData.add( BarChartEntity(listOf(90f, 70f, 110f), PrimarySolidBlue, "wed"))
 
+                BarChart(
+                    modifier = Modifier,
+                    barChartData = barChartData,
+                    verticalAxisValues = listOf(
+                        0, 60, 90, 120,150
+                    ) as List<Float>,
+//            axisColor = Color(0xFFA6A6A6),
+//            verticalAxisLabelColor = Color(0xFFA6A6A6),
+//            horizontalAxisLabelColor = Color(0xFF4F4F4F),
+//            horizontalAxisLabelFontSize = 20.sp,
+//            isShowVerticalAxis = false,
+                )
+                Spacer(modifier = Modifier.height(24.dp))
                 HearRateReadingsContent(
                     heartRateSummaryModel = heartRateSummary,
                     previousReadings = previousReadings

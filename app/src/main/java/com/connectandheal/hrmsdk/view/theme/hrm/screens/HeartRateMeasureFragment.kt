@@ -24,13 +24,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,28 +57,29 @@ import com.connectandheal.hrmsdk.domain.ScanHeartRateModel
 import com.connectandheal.hrmsdk.domain.ScanStatus
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.Destination
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
-import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.PPGChart
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.Router
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.PPGChart
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.ActivitySheetContent
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.BottomInstructions
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.Disclaimer
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.HeartRateMeasuring
-import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.HeartRateResult
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure.TopInstructions
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.toBitmap
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.AppTheme
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.DefaultAppBar
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey500
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidBlue
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimaryWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.SelectPatientBar
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TertiaryPastelWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight400
 import com.connectandheal.hrmsdk.viewmodel.hrm.HRMViewState
-import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateHistoryViewModel
 import com.connectandheal.hrmsdk.viewmodel.hrm.HRMeasuredValues
 import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateMeasureViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -87,8 +94,9 @@ class HeartRateMeasureFragment : Fragment() {
     private val viewModel: HeartRateMeasureViewModel by viewModels()
 
     sealed class Action {
-        object HistoryScreen: Action()
-        object Back: Action()
+        object HistoryScreen : Action()
+        object Back : Action()
+        object ResultScreen : Action()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,22 +115,31 @@ class HeartRateMeasureFragment : Fragment() {
             setContent {
                 AppTheme {
                     val router = Router(context, findNavController())
+
                     MainContent(
                         viewModel = viewModel,
                         cameraController = cameraController,
                         onAction = {
-                            when(it) {
+                            when (it) {
                                 is Action.HistoryScreen -> {
-                                    router.navigate(HRMHistoryScreen(
-                                        patient = Patient(
-                                            patientId = "",
-                                            patientName = ""
+                                    router.navigate(
+                                        HRMHistoryScreen(
+                                            patient = Patient(
+                                                patientId = "",
+                                                patientName = ""
+                                            )
                                         )
-                                    ))
+                                    )
                                 }
+
                                 is Action.Back -> {}
+                                is Action.ResultScreen ->
+                                    router.navigate(
+                                        HeartRateResultScreen()
+                                    )
+
                             }
-                        }
+                        },
                         onSaveClick = { router.navigate(ReadingErrorScreen()) }
                     )
                 }
@@ -130,11 +147,12 @@ class HeartRateMeasureFragment : Fragment() {
         }
     }
 
+    @kotlin.OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun MainContent(
         viewModel: HeartRateMeasureViewModel,
-        cameraController: LifecycleCameraController?
-        onAction: (Action) -> Unit
+        cameraController: LifecycleCameraController?,
+        onAction: (Action) -> Unit,
         onSaveClick: () -> Unit
     ) {
         Scaffold(
@@ -154,8 +172,8 @@ class HeartRateMeasureFragment : Fragment() {
                     actions = {
                         Text(
                             modifier = Modifier
-                                .clickable{
-                                   onAction(Action.HistoryScreen)
+                                .clickable {
+                                    onAction(Action.HistoryScreen)
                                 }
                                 .padding(end = 16.dp),
                             text = "History",
@@ -167,12 +185,52 @@ class HeartRateMeasureFragment : Fragment() {
                 )
             },
             content = { paddingValues ->
-                HeartRateMeasureContent(
-                    paddingValues = paddingValues,
-                    viewModel = viewModel,
-                    cameraController = cameraController,
-                    onSaveClick = onSaveClick
-                )
+                val coroutineScope = rememberCoroutineScope()
+                val sheetState =
+                    rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.HalfExpanded)
+
+                val openSheet: () -> Unit = {
+                    coroutineScope.launch {
+                        sheetState.show()
+                    }
+                }
+
+                val closeSheet: () -> Unit = {
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                }
+
+                LaunchedEffect(Unit) {
+                    snapshotFlow { sheetState.currentValue }
+                        .collect {
+                            if (it == ModalBottomSheetValue.Hidden) {
+                                closeSheet()
+                            }
+                        }
+                }
+
+                ModalBottomSheetLayout(
+                    sheetState = sheetState,
+                    sheetBackgroundColor = PrimaryWhite,
+                    sheetContent = {
+                        ActivitySheetContent(categoryList = viewModel.activities,
+                            onAction = {
+                                onAction(Action.ResultScreen)
+                            })
+                    },
+                    sheetShape = RoundedCornerShape(10.dp)
+                ) {
+                    Box(Modifier.fillMaxSize()) {
+                        HeartRateMeasureContent(
+                            paddingValues = paddingValues,
+                            viewModel = viewModel,
+                            cameraController = cameraController,
+                            onSaveClick = onSaveClick,
+                            openSheet = { openSheet() }
+                        )
+                    }
+                }
             }
         )
     }
@@ -184,8 +242,10 @@ fun HeartRateMeasureContent(
     paddingValues: PaddingValues,
     viewModel: HeartRateMeasureViewModel,
     cameraController: LifecycleCameraController?,
-    onSaveClick: () -> Unit
-) {
+    onSaveClick: () -> Unit,
+    openSheet: (hrValue: Int) -> Unit,
+
+    ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val executor = ContextCompat.getMainExecutor(context)
@@ -237,7 +297,7 @@ fun HeartRateMeasureContent(
             }
 
             is HRMViewState.ResultAvailable -> {
-                HeartRateResult(hrmResultModel = viewState.hrmResultModel, onSaveClick = onSaveClick)
+                openSheet(viewState.hrmResultModel.hrValue)
             }
 
             is HRMViewState.MotionDetected -> {
@@ -258,6 +318,7 @@ fun HeartRateMeasureContent(
 
             is HRMViewState.Error -> {}
             is HRMViewState.Initial -> {}
+            else -> {}
         }
     }
 }
