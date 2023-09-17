@@ -24,6 +24,14 @@ sealed class ViewState {
     object Loaded: ViewState()
 }
 
+sealed class BottomSheetState {
+    object Nothing: BottomSheetState()
+    object DeleteRecords : BottomSheetState()
+    data class EditNote(
+        val previousReadingItem: PreviousReadingItem
+    ): BottomSheetState()
+}
+
 @HiltViewModel
 class HeartRateHistoryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
@@ -48,6 +56,21 @@ class HeartRateHistoryViewModel @Inject constructor(
     private val _selectedFilterType: MutableStateFlow<FilterType> = MutableStateFlow(FilterType.DAILY)
     val selectedFilterType by lazy {
         _selectedFilterType.asStateFlow()
+    }
+
+    private val _bottomSheetState: MutableStateFlow<BottomSheetState> = MutableStateFlow(BottomSheetState.Nothing)
+    val bottomSheetState by lazy {
+        _bottomSheetState.asStateFlow()
+    }
+
+    private val _showDeleteButton: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val showDeleteButton by lazy {
+        _showDeleteButton.asStateFlow()
+    }
+
+    private val _note: MutableStateFlow<String> = MutableStateFlow("")
+    val note by lazy {
+        _note.asStateFlow()
     }
 
     val filterList = listOf<FilterType>(
@@ -123,5 +146,23 @@ class HeartRateHistoryViewModel @Inject constructor(
 
     fun onFilterChange(selectedFilter: FilterType) {
         _selectedFilterType.value = selectedFilter
+    }
+
+    fun changeBottomSheetState (sheetState: BottomSheetState) {
+        _bottomSheetState.value = sheetState
+        when(sheetState) {
+            is BottomSheetState.EditNote -> {
+                _note.value = sheetState.previousReadingItem.note
+            }
+            else -> {}
+        }
+    }
+
+    fun onNoteChange(newNote: String) {
+        _note.value = newNote
+    }
+
+    fun toggleDeleteButtonState() {
+        _showDeleteButton.value = showDeleteButton.value.not()
     }
 }
