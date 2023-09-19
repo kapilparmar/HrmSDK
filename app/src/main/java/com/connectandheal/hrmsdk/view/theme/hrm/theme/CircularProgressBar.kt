@@ -51,18 +51,13 @@ fun CircularProgressBar(
         contentAlignment = Alignment.Center,
         modifier = modifier
     ) {
+
         Canvas(modifier = modifier.fillMaxSize().background(color = Color.Red.copy(alpha = 0.47f),
             shape = CircleShape)) {
             val canvasSize = size.minDimension
             val radius =
                 canvasSize / 2 - maxOf(backgroundProgressBarWidth, progressBarWidth).toPx() / 2
 
-            drawCircle(
-                color = backgroundProgressBarColor,
-                radius = radius,
-                center = size.center,
-                style = Stroke(width = backgroundProgressBarWidth.toPx()+2)
-            )
             drawArc(
                 color = progressBarColor,
                 startAngle = 270f + startAngle,

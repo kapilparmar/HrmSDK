@@ -28,7 +28,7 @@ sealed class HRMViewState {
 }
 
 data class HRMeasuredValues(
-    val completed: Float,
+    val progress: Float,
     val hrValue: Int,
     val hrValueList: List<Float>
 )
@@ -168,7 +168,7 @@ class HeartRateMeasureViewModel @Inject constructor(
                 hrList = hrList + randomValue
                 completed += 1
                 _hrValue.value = HRMeasuredValues(
-                    completed = completed,
+                    progress = completed,
                     hrValue = randomValue.toInt(),
                     hrValueList = hrList
                 )

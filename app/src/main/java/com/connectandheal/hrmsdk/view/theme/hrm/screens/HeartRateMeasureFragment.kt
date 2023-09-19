@@ -261,6 +261,7 @@ fun HeartRateMeasureContent(
 
     LaunchedEffect(key1 = viewState) {
         when (viewState) {
+            is HRMViewState.MeasureHeartRate,
             is HRMViewState.Scanning -> {
                 cameraController?.bindToLifecycle(lifecycleOwner)
                 cameraController?.cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -386,7 +387,7 @@ fun MeasureHeartRateScreen(
                 }
 
                 ScanStatus.MEASURING -> {
-                    HeartRateMeasuring(hrValue = hrValueState)
+                    HeartRateMeasuring(hrValue = hrValueState, cameraController = cameraController)
                     hrValueState?.hrValueList?.let {
                         PPGChart(
                             hrValue = it,

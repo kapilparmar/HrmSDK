@@ -1,12 +1,17 @@
 package com.connectandheal.hrmsdk.view.theme.hrm.screens.common.heartratemeasure
 
+import android.view.ViewGroup
+import androidx.camera.view.LifecycleCameraController
+import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -14,11 +19,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.connectandheal.hrmsdk.R
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.CircularProgressBar
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey200
@@ -140,7 +147,7 @@ fun VoiceInstructions() {
 }
 
 @Composable
-fun HeartRateMeasuring(hrValue: HRMeasuredValues?) {
+fun HeartRateMeasuring(hrValue: HRMeasuredValues?, cameraController: LifecycleCameraController?) {
     Surface(
         modifier = Modifier
             .padding(top = 12.dp)
@@ -155,19 +162,40 @@ fun HeartRateMeasuring(hrValue: HRMeasuredValues?) {
             horizontalAlignment = CenterHorizontally,
             modifier = Modifier.padding(top = 22.dp)
         ) {
-            hrValue?.completed?.let {
-                CircularProgressBar(
-                    progress = it,
-                    modifier = Modifier
-                        .size(128.dp),
-                    progressMax = 100f,
-                    progressBarColor = PrimarySolidGreen,
-                    progressBarWidth = 8.dp,
-                    backgroundProgressBarColor = Color.White,
-                    backgroundProgressBarWidth = 8.dp,
-                    roundBorder = true,
-                    labelEnabled = true
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(112.dp)
+            ) {
+                AndroidView(
+                    modifier = Modifier,
+                    factory = { context ->
+                        val previewView = PreviewView(context).apply {
+                            this.scaleType = scaleType
+                            layoutParams = ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT
+                            )
+                        }.also {
+                            it.controller = cameraController
+                        }
+                        previewView
+                    }
                 )
+                hrValue?.progress?.let {
+                    CircularProgressBar(
+                        progress = it,
+                        modifier = Modifier
+                            .size(128.dp),
+                        progressMax = 100f,
+                        progressBarColor = PrimarySolidGreen,
+                        progressBarWidth = 8.dp,
+                        backgroundProgressBarColor = Color.White,
+                        backgroundProgressBarWidth = 8.dp,
+                        roundBorder = true,
+                        labelEnabled = true
+                    )
+                }
             }
             Row(
                 modifier = Modifier.padding(top = 20.dp),
