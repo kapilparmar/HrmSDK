@@ -13,11 +13,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,8 +54,12 @@ import com.connectandheal.hrmsdk.view.theme.hrm.routing.Destination
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.FragmentRouteProtocol
 import com.connectandheal.hrmsdk.view.theme.hrm.routing.Router
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.FullPageCircularLoader
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.barchart.BarChart
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.barchart.BarChartEntity
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.noRippleClickable
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.BottomSheetDeleteRow
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.DateSection
+import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.EditNote
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.FlowType
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.HRMPreviousReadingCard
 import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.HeartRateSummaryCard
@@ -58,6 +68,7 @@ import com.connectandheal.hrmsdk.view.theme.hrm.theme.AppTheme
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.DefaultAppBar
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey200
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey500
+import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidBlue
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidGreen
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimaryWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.SelectPatientBar
@@ -65,19 +76,12 @@ import com.connectandheal.hrmsdk.view.theme.hrm.theme.TertiaryPastelWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight400
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size14_Weight700
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.TextStyle_Size16_Weight400
+import com.connectandheal.hrmsdk.viewmodel.hrm.BottomSheetState
 import com.connectandheal.hrmsdk.viewmodel.hrm.HeartRateHistoryViewModel
 import com.connectandheal.hrmsdk.viewmodel.hrm.ViewState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.parcelize.Parcelize
-import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.rememberCoroutineScope
-import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.barchart.BarChart
-import com.connectandheal.hrmsdk.view.theme.hrm.screens.common.barchart.BarChartEntity
-import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.BottomSheetDeleteRow
-import com.connectandheal.hrmsdk.view.theme.hrm.screens.hrminsights.EditNote
-import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidBlue
-import com.connectandheal.hrmsdk.viewmodel.hrm.BottomSheetState
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class HRMHistoryScreen(
