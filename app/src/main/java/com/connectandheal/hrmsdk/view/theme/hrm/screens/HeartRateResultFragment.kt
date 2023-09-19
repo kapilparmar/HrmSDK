@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import com.connectandheal.hrmsdk.R
 import com.connectandheal.hrmsdk.domain.HRMResultModel
 import com.connectandheal.hrmsdk.domain.Patient
@@ -58,10 +59,28 @@ class HeartRateResultFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         return ComposeView(requireContext()).apply {
-            val router = Router(context = context)
             setContent {
                 AppTheme {
-                    MainContent(onAction = {})
+                    val router = Router(context, findNavController())
+                    MainContent(onAction = {
+                        when (it) {
+                            is Action.HistoryScreen -> {
+                                router.navigate(
+                                    HRMHistoryScreen(
+                                        patient = Patient(
+                                            patientId = "",
+                                            patientName = ""
+                                        )
+                                    )
+                                )
+                            }
+
+                            is Action.Back -> {
+                                router.popBackStack()
+                            }
+                        }
+
+                    })
                 }
             }
         }
@@ -70,7 +89,7 @@ class HeartRateResultFragment : Fragment() {
 
 @Composable
 private fun MainContent(
-    onAction: (HeartRateMeasureFragment.Action) -> Unit,
+    onAction: (HeartRateResultFragment.Action) -> Unit,
 ) {
     Scaffold(
         modifier = Modifier
@@ -90,7 +109,7 @@ private fun MainContent(
                     Text(
                         modifier = Modifier
                             .clickable {
-                                onAction(HeartRateMeasureFragment.Action.HistoryScreen)
+                                onAction(HeartRateResultFragment.Action.HistoryScreen)
                             }
                             .padding(end = 16.dp),
                         text = "See Insights",
@@ -98,10 +117,11 @@ private fun MainContent(
                         color = PrimarySolidBlue
                     )
                 },
-                onBackPressed = { onAction(HeartRateMeasureFragment.Action.Back) }
+                onBackPressed = { onAction(HeartRateResultFragment.Action.Back) }
             )
         },
         content = {_->
-            HeartRateResult(hrmResultModel = HRMResultModel(), onSaveClick = {})
+            HeartRateResult(hrmResultModel = HRMResultModel(), onSaveClick = {},
+                onEnterNote = {})
         })
 }

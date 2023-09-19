@@ -187,7 +187,7 @@ class HeartRateMeasureFragment : Fragment() {
             content = { paddingValues ->
                 val coroutineScope = rememberCoroutineScope()
                 val sheetState =
-                    rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.HalfExpanded)
+                    rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
                 val openSheet: () -> Unit = {
                     coroutineScope.launch {

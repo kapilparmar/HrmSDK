@@ -68,7 +68,6 @@ import com.connectandheal.hrmsdk.view.theme.hrm.theme.AppTheme
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.DefaultAppBar
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey200
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.Grey500
-import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidBlue
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimarySolidGreen
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.PrimaryWhite
 import com.connectandheal.hrmsdk.view.theme.hrm.theme.SelectPatientBar
@@ -301,24 +300,7 @@ private fun MainContent(
                     currentDateString = "2 Jul 2023" //TODO
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
-                val barChartData = ArrayList<BarChartEntity>()
-                 barChartData.add( BarChartEntity(listOf(120f,120f), PrimarySolidBlue, "mon"))
-                 barChartData.add( BarChartEntity(listOf(80f, 120f), PrimarySolidBlue, "tues"))
-                 barChartData.add( BarChartEntity(listOf(90f, 70f, 110f), PrimarySolidBlue, "wed"))
 
-                BarChart(
-                    modifier = Modifier,
-                    barChartData = barChartData,
-                    verticalAxisValues = listOf(
-                        0, 60, 90, 120,150
-                    ) as List<Float>,
-//            axisColor = Color(0xFFA6A6A6),
-//            verticalAxisLabelColor = Color(0xFFA6A6A6),
-//            horizontalAxisLabelColor = Color(0xFF4F4F4F),
-//            horizontalAxisLabelFontSize = 20.sp,
-//            isShowVerticalAxis = false,
-                )
                 Spacer(modifier = Modifier.height(24.dp))
                 HearRateReadingsContent(
                     heartRateSummaryModel = heartRateSummary,
@@ -365,6 +347,23 @@ fun HearRateReadingsContent(
     onAction: (HRMHistoryFragment.Action) -> Unit,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item{
+            val barChartData = ArrayList<BarChartEntity>()
+            barChartData.add( BarChartEntity(hrm = listOf(120f,120f), label = "Mon"))
+            barChartData.add( BarChartEntity(hrm = listOf(80f, 120f), label = "Tue"))
+            barChartData.add( BarChartEntity(hrm = listOf(), label = "Wed"))
+            barChartData.add( BarChartEntity(hrm = listOf(), label = "Thu"))
+            barChartData.add( BarChartEntity(hrm = listOf(90f, 70f, 110f), label = "Fri"))
+            barChartData.add( BarChartEntity(hrm = listOf(), label = "Sat"))
+            barChartData.add( BarChartEntity(hrm = listOf(90f, 70f, 110f), label = "Sun"))
+            BarChart(
+                modifier = Modifier,
+                barChartData = barChartData,
+                verticalAxisValues = listOf(
+                    0, 60, 90, 120,150
+                ) as List<Float>)
+
+        }
         heartRateSummaryModel.value?.let {
             item {
                 HeartRateSummaryCard(

@@ -79,7 +79,7 @@ fun ActivitySheetContent(
             style = TextStyle_Size18_Weight700,
             color = PrimarySolidBlue,
             textAlign = TextAlign.Start,
-            modifier = Modifier.padding(vertical = 32.dp)
+            modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp)
         )
         ActivitiesGrid(onAction = onAction, categoryList)
     }

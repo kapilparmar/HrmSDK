@@ -162,7 +162,8 @@ class HeartRateMeasureViewModel @Inject constructor(
         var hrList = listOf<Float>()
         var completed = 0f
         viewModelScope.launch {
-            while (true) {
+            var completion = 0
+            while (completion < 10) {
                 val randomValue = (Random.nextFloat() * (180 - 60) + 60)
                 hrList = hrList + randomValue
                 completed += 1
@@ -172,7 +173,10 @@ class HeartRateMeasureViewModel @Inject constructor(
                     hrValueList = hrList
                 )
                 delay(3000) // 0.3 seconds delay
+                completion +=1
             }
+            _hrmViewState.value = HRMViewState.ResultAvailable(
+                hrmResultModel = HRMResultModel())
         }
     }
 }

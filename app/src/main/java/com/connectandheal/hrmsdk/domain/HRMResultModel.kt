@@ -8,7 +8,8 @@ data class HRMResultModel(
     val color: Color = Color.Green,
     val activities: List<Activities> = getActivities(),
     val heartRateZone: HeartRateZone = HeartRateZone.HEALTHY,
-    val hrmValues: List<Int> = mutableListOf(30, 50, 90, 120)
+    val hrmValues: List<Int> = mutableListOf(30, 50, 90, 120),
+    val activityDone : String = " I was Resting"
 )
 data class Activities(
     val  activity : ActivityType,

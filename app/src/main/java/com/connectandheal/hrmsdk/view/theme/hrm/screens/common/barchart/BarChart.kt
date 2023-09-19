@@ -44,12 +44,12 @@ fun BarChart(
     ) {
 
         val bottomAreaHeight = horizontalAxisLabelFontSize.toPx()
-        val rightAreaWidth =
+        val leftAreaWidth =
             (verticalAxisValues[verticalAxisValues.size - 1].toString().length * verticalAxisLabelFontSize.toPx()
                 .div(1.75)).toInt()
 
         val verticalAxisLength = (size.height - bottomAreaHeight)
-        val horizontalAxisLength = size.width - rightAreaWidth + 30
+        val horizontalAxisLength = size.width - leftAreaWidth
 
         val distanceBetweenVerticalAxisValues = (verticalAxisLength / (verticalAxisValues.size - 1))
 
@@ -57,7 +57,7 @@ fun BarChart(
         if (isShowHorizontalLines.not())
             drawRect(
                 color = axisColor,
-                topLeft = Offset(rightAreaWidth.toFloat(), verticalAxisLength),
+                topLeft = Offset(leftAreaWidth.toFloat(), verticalAxisLength),
                 size = Size(horizontalAxisLength, axisThicknessPx)
             )
 
@@ -65,14 +65,14 @@ fun BarChart(
         if (isShowVerticalAxis)
             drawRect(
                 color = axisColor,
-                topLeft = Offset(rightAreaWidth.toFloat(), 0.0f),
+                topLeft = Offset(leftAreaWidth.toFloat(), 0.0f),
                 size = Size(axisThicknessPx, verticalAxisLength)
             )
 
         // Draw vertical axis values & horizontal lines
         for (index in verticalAxisValues.indices) {
 
-            val x = size.width - (rightAreaWidth / 2) + 10
+            val x = size.width - (leftAreaWidth / 2) + 10
             val y = verticalAxisLength - (distanceBetweenVerticalAxisValues).times(index)
 
             // Draw vertical axis value
@@ -80,7 +80,7 @@ fun BarChart(
                 withSuffix(verticalAxisValues[index])?.let {
                     drawText(
                         it,
-                        x,
+                        0f,
                         y + verticalAxisLabelFontSize.toPx() / 2,
                         Paint().apply {
                             textSize = verticalAxisLabelFontSize.toPx()
@@ -95,7 +95,7 @@ fun BarChart(
             if (isShowHorizontalLines)
                 drawRect(
                     color = axisColor,
-                    topLeft = Offset(0.0f, y),
+                    topLeft = Offset(leftAreaWidth.toFloat(), y),
                     size = Size(horizontalAxisLength, axisThicknessPx)
                 )
         }
@@ -104,7 +104,7 @@ fun BarChart(
         val totalBarPadding = paddingBetweenBarsPx * (barChartData.size + 1)
         val barWidth = DefaultBarWidth.value
 //            (drawContext.size.width - totalBarPadding - leftAreaWidth) / barChartData.size
-        var x = (barWidth)
+        var x = barWidth + leftAreaWidth
         var spaceBetweenSet = 0f
         for (index in barChartData.indices) {
             val entity = barChartData[index]
@@ -140,6 +140,11 @@ fun BarChart(
                     }
                 }
             }
+            drawRect(
+                color = axisColor,
+                topLeft = Offset((x-paddingBetweenBarsPx -barWidth*entity.hrm.size), 0f),
+                size = Size( axisThicknessPx, verticalAxisLength)
+            )
             x += paddingBetweenBarSetPx
         }
     }
